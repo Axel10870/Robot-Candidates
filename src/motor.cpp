@@ -1,6 +1,6 @@
 #include "motor.h"
 
-Motor :: Motor(int ENA_PIN, int In1_PIN, int In2_PIN) {
+Motor::Motor(int ENA_PIN, int In1_PIN, int In2_PIN) {
     this->ENA_PIN = ENA_PIN;
     this->In1_PIN = In1_PIN;
     this->In2_PIN = In2_PIN;

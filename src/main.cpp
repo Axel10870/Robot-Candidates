@@ -1,19 +1,9 @@
 #include <Arduino.h>
 #include "Wire.h"
 #include "Adafruit_TCS34725.h"
+#include "Ultrasonico.h"  
+#include "MotorControl.h"
 
-#define redpin 3
-#define greenpin 5
-#define bluepin 6
-#define communAnote true
-
-byte gammatable[256];
-  
-Adafruit_TCS34725 tcs= Adafruit_TCS34725(
-  TCS34725_INTEGRATIONTIME_50mMS, TCS34725_GAIN_4X);
-
-
-#include "Ultrasonico.h"
   //color Sensor set
   #define redpin 3
   #define greenpin 5
@@ -24,22 +14,8 @@ Adafruit_TCS34725 tcs= Adafruit_TCS34725(
     TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
   //pins se definen despues
-  //Car
-  ////Motor set 1
-const int ENA_PIN=9; //PMW  // Power Left Front Motor
-const int In1_PIN=22;
-const int In2_PIN=23;
-const int ENB_PIN=10; //PMW // Power Right Front Motor
-const int In3_PIN=26;
-const int In4_PIN=27;
-
-  ////Motor set 2
-const int ENC_PIN=11; //PMW // Power Left Back Motor
-const int In5_PIN=30;
-const int In6_PIN=31;
-const int END_PIN=12; //PMW // Power Right Back Motor
-const int In7_PIN=34;
-const int In8_PIN=35;
+  //Car iniciar 4 motores
+MotorControl motorControl;
 
   //Sensor Ultrasonico, primerp pin es el trigger y el segundo es el echo
   UltraSonico sensorFrente(38, 39);//Frente
@@ -57,41 +33,21 @@ int detector= 4; //IR sensor
 
 void setup() {
   //Left Front Motor
-  pinMode(ENA_PIN, OUTPUT);
-  pinMode(In1_PIN, OUTPUT);
-  pinMode(In2_PIN, OUTPUT);
+  motorControl.begin();
 
-  //Right Front Motor
-  pinMode(ENB_PIN, OUTPUT);
-  pinMode(In3_PIN, OUTPUT);
-  pinMode(In4_PIN, OUTPUT);
-
-  //Left Back Motor
-  pinMode(ENC_PIN, OUTPUT);
-  pinMode(In5_PIN, OUTPUT);
-  pinMode(In6_PIN, OUTPUT);
-
-  //Right Back Motor
-  pinMode(END_PIN, OUTPUT);
-  pinMode(In7_PIN, OUTPUT);
-  pinMode(In8_PIN, OUTPUT);
+  //primer pin es ENA, segundo es In1 y tercero es In2
+  motorControl.motorFrontLeft(9, 22, 23); //Left Front Motor
+  motorControl.motorFrontRight(10, 26, 27); //Right Front Motor
+  motorControl.motorBackLeft(11, 30, 31); //Left Back Motor
+  motorControl.motorBackRight(12, 34, 35); //Right Back Motor
 
   //empieza comunicacion serial
   Serial.begin(9600);
-////////                                       ULTRASONIC FRONT
-  pinMode(38, OUTPUT);
-  pinMode(39, INPUT);
-  digitalWrite(38, LOW);
-  double t=0;
-  double d=0;
 
-  //Infrarojo IR
-
-  //Ultrasonicos
+  //Ultrasonicos modo de pines
   sensorFrente.begin();
   sensorIzquierda.begin();
   sensorDerecha.begin();
-  
 
    //infrarrojo (IR)
   pinMode(detector, INPUT);
@@ -142,12 +98,7 @@ void loop() {
   analogWrite(greenpin, gammatable[(int)green]);
   analogWrite(bluepin, gammatable[(int)blue]);
   
-  ////////////                                     ULTRASÓNICO FRONTAL
-  digitalWrite(38, HIGH);
-  delay(10);
-  digitalWrite(38, LOW);
-  int tf= pulseIn(39, HIGH);
-  distanceFrente= tf/58.2; //Distancia en cm
+
 
   if(distanceFrente<=5){ //Si hay 5 cm o menos
     bool bloqueo = true;
@@ -163,7 +114,7 @@ void loop() {
     Avanzar(100);
   }
 
-  //Ultrasonic
+  //Ultrasonic medir distancia
   distanceFrente = sensorFrente.getDistance();
   distanceIzquierda = sensorIzquierda.getDistance();  
   distanceDerecha = sensorDerecha.getDistance();
@@ -171,101 +122,4 @@ void loop() {
   if(distanceFrente<=5){ //Si hay 5 cm
     bool bloqueo = true;
   }
-}
-
-
-////FUNCIONES DE MOVIMIENTO
-void Avanzar(int speed){
-  //Velocidades
-  analogWrite(ENA_PIN, speed);
-  analogWrite(ENB_PIN, speed);
-  analogWrite(ENC_PIN, speed);
-  analogWrite(END_PIN, speed);
-  //Direcciones
-  digitalWrite(In1_PIN, 1);
-  digitalWrite(In2_PIN, 0);
-  digitalWrite(In3_PIN, 1);
-  digitalWrite(In4_PIN, 0);
-  digitalWrite(In5_PIN, 1);
-  digitalWrite(In6_PIN, 0);
-  digitalWrite(In7_PIN, 1);
-  digitalWrite(In8_PIN, 0);
-}
-void Retroceder(int speed){
-  //Velocidades
-  analogWrite(ENA_PIN, speed);
-  analogWrite(ENB_PIN, speed);
-  analogWrite(ENC_PIN, speed);
-  analogWrite(END_PIN, speed);
-  //Direcciones
-  digitalWrite(In1_PIN, 0);
-  digitalWrite(In2_PIN, 1);
-  digitalWrite(In3_PIN, 0);
-  digitalWrite(In4_PIN, 1);
-  digitalWrite(In5_PIN, 0);
-  digitalWrite(In6_PIN, 1);
-  digitalWrite(In7_PIN, 0);
-  digitalWrite(In8_PIN, 1);
-}
-void Derecha(int speed){
-  //Velocidades
-  analogWrite(ENA_PIN, speed);
-  analogWrite(ENB_PIN, speed);
-  analogWrite(ENC_PIN, speed);
-  analogWrite(END_PIN, speed);
-  //Direcciones
-  digitalWrite(In1_PIN, 1);
-  digitalWrite(In2_PIN, 0);
-  digitalWrite(In3_PIN, 0);
-  digitalWrite(In4_PIN, 1);
-  digitalWrite(In5_PIN, 1);
-  digitalWrite(In6_PIN, 0);
-  digitalWrite(In7_PIN, 0);
-  digitalWrite(In8_PIN, 1);
-}
-void Izquierda(int speed){
-  //Velocidades
-  analogWrite(ENA_PIN, speed);
-  analogWrite(ENB_PIN, speed);
-  analogWrite(ENC_PIN, speed);
-  analogWrite(END_PIN, speed);
-  //Direcciones
-  digitalWrite(In1_PIN, 0);
-  digitalWrite(In2_PIN, 1);
-  digitalWrite(In3_PIN, 1);
-  digitalWrite(In4_PIN, 0);
-  digitalWrite(In5_PIN, 0);
-  digitalWrite(In6_PIN, 1);
-  digitalWrite(In7_PIN, 1);
-  digitalWrite(In8_PIN, 0);
-}
-void neutro(){
-  analogWrite(ENA_PIN, 0);
-  analogWrite(ENB_PIN, 0);
-  analogWrite(ENC_PIN, 0);
-  analogWrite(END_PIN, 0);
-  //Direcciones
-  digitalWrite(In1_PIN, 0);
-  digitalWrite(In2_PIN, 0);
-  digitalWrite(In3_PIN, 0);
-  digitalWrite(In4_PIN, 0);
-  digitalWrite(In5_PIN, 0);
-  digitalWrite(In6_PIN, 0);
-  digitalWrite(In7_PIN, 0);
-  digitalWrite(In8_PIN, 0);
-}
-void Parking(){
-  analogWrite(ENA_PIN, 100);
-  analogWrite(ENB_PIN, 100);
-  analogWrite(ENC_PIN, 100);
-  analogWrite(END_PIN, 100);
-  //Direcciones
-  digitalWrite(In1_PIN, 1);
-  digitalWrite(In2_PIN, 1);
-  digitalWrite(In3_PIN, 1);
-  digitalWrite(In4_PIN, 1);
-  digitalWrite(In5_PIN, 1);
-  digitalWrite(In6_PIN, 1);
-  digitalWrite(In7_PIN, 1);
-  digitalWrite(In8_PIN, 1);
 }
