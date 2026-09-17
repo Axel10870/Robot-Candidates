@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "Wire.h"
 #include "Adafruit_TCS34725.h"
-<<<<<<< HEAD
 
 #define redpin 3
 #define greenpin 5
@@ -13,9 +12,8 @@ byte gammatable[256];
 Adafruit_TCS34725 tcs= Adafruit_TCS34725(
   TCS34725_INTEGRATIONTIME_50mMS, TCS34725_GAIN_4X);
 
-=======
+
 #include "Ultrasonico.h"
-//a
   //color Sensor set
   #define redpin 3
   #define greenpin 5
@@ -25,7 +23,6 @@ Adafruit_TCS34725 tcs= Adafruit_TCS34725(
   Adafruit_TCS34725 tcs= Adafruit_TCS34725(
     TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
->>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
   //pins se definen despues
   //Car
   ////Motor set 1
@@ -81,15 +78,14 @@ void setup() {
 
   //empieza comunicacion serial
   Serial.begin(9600);
-<<<<<<< HEAD
-  pinMode(Trigger, OUTPUT);
-  pinMode(Echo, INPUT);
-  digitalWrite(Trigger, LOW);
+////////                                       ULTRASONIC FRONT
+  pinMode(38, OUTPUT);
+  pinMode(39, INPUT);
+  digitalWrite(38, LOW);
   double t=0;
   double d=0;
 
   //Infrarojo IR
-=======
 
   //Ultrasonicos
   sensorFrente.begin();
@@ -98,7 +94,6 @@ void setup() {
   
 
    //infrarrojo (IR)
->>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
   pinMode(detector, INPUT);
 
   //color
@@ -129,17 +124,11 @@ void loop() {
   //Infrarrojo
   int valueIR = 0;
   valueIR = digitalRead(detector);
-<<<<<<< HEAD
   if(valueIR == HIGH){ //checa si hay obstaaculo
     Serial.println("Detectado obstaculo");//cambiar a un boolean
   }
-=======
-  if(valueIR == HIGH){ //checa si hay obstaculo
-    Serial.println("Detectado obstaculo");//cambiar a un boolean
-  }
-  
->>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
-  //Colores
+
+  //////////////                                 COLORES
   float red, green, blue;
   tcs.getRGB(&red, &green, &blue);
   tcs.setInterrupt(true);
@@ -152,14 +141,13 @@ void loop() {
   analogWrite(redpin, gammatable[(int)red]);
   analogWrite(greenpin, gammatable[(int)green]);
   analogWrite(bluepin, gammatable[(int)blue]);
-<<<<<<< HEAD
   
-  ////////////                    ULTRASÓNICO FRONTAL
+  ////////////                                     ULTRASÓNICO FRONTAL
   digitalWrite(38, HIGH);
   delay(10);
   digitalWrite(38, LOW);
-  t= pulseIn(39, HIGH);
-  distanceFrente= t/58.2; //Distancia en cm
+  int tf= pulseIn(39, HIGH);
+  distanceFrente= tf/58.2; //Distancia en cm
 
   if(distanceFrente<=5){ //Si hay 5 cm o menos
     bool bloqueo = true;
@@ -181,7 +169,6 @@ void loop() {
   distanceDerecha = sensorDerecha.getDistance();
 
   if(distanceFrente<=5){ //Si hay 5 cm
->>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
     bool bloqueo = true;
   }
 }
