@@ -1,9 +1,10 @@
 #include "movements.h"
 Movements::Movements()
-        : frontLeft{0, 0, 0},
-            frontRight{0, 0, 0},
-            backLeft{0, 0, 0},
-            backRight{0, 0, 0} {}
+    :   frontLeft(0, 0, 0),
+        frontRight(0, 0, 0),
+        backLeft(0, 0, 0),
+        backRight(0, 0, 0) { 
+            }
 
     void Movements::begin() {
         frontLeft.begin();

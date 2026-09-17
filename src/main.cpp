@@ -2,7 +2,7 @@
 #include "Wire.h"
 #include "Adafruit_TCS34725.h"
 #include "Ultrasonico.h"  
-#include "Movements.h"
+#include "movements.h"
 
   //color Sensor set
   #define redpin 3
@@ -107,12 +107,12 @@ void loop() {
 
   if(bloqueo == true){
     Serial.println("Obstaculo detectado");
-    Parking();
+    movements.freno();
     delay(1000);
-    neutro();
+    movements.neutro();
   }
   else{
-    Avanzar(100);
+    movements.avanzar(100);
   }
 
   //Ultrasonic medir distancia
