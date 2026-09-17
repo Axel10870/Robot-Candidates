@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "Wire.h"
 #include "Adafruit_TCS34725.h"
-
+#include "Ultrasonico.h"
+//a
   //color Sensor set
   #define redpin 3
   #define greenpin 5
@@ -29,14 +30,17 @@ const int END_PIN=12; //PMW // Power Right Back Motor
 const int In7_PIN=34;
 const int In8_PIN=35;
 
-  //Sensor Ultrasonico
-const int Trigger=50;
-const int Echo=51;
+  //Sensor Ultrasonico, primerp pin es el trigger y el segundo es el echo
+  UltraSonico sensorFrente(38, 39);//Frente
+  UltraSonico sensorIzquierda(36, 37);//Izquierda
+  UltraSonico sensorDerecha(40, 41);//Derecha
 
   //variables
   //int speed;
-int t;
-int distance;
+//int t;??? dos tiempos??
+double distanceFrente;
+double distanceIzquierda;
+double distanceDerecha;
 bool bloqueo = false;
 
 void setup() {
@@ -60,13 +64,14 @@ void setup() {
   pinMode(In7_PIN, OUTPUT);
   pinMode(In8_PIN, OUTPUT);
 
-  //Ultrasonico
+  //empieza comunicacion serial
   Serial.begin(9600);
-  pinMode(Trigger, OUTPUT);
-  pinMode(Echo, INPUT);
-  digitalWrite(Trigger, LOW);
-  double t=0;
-  double d=0;
+
+  //Ultrasonicos
+  sensorFrente.begin();
+  sensorIzquierda.begin();
+  sensorDerecha.begin();
+  
 
    //infrarrojo (IR)
   pinMode(detector, INPUT);
@@ -98,7 +103,7 @@ void loop() {
   //Infrarrojo
   int valueIR = 0;
   valueIR = digitalRead(detector);
-  if(valueIR == HIGH){ //checa si hay obstaaculo
+  if(valueIR == HIGH){ //checa si hay obstaculo
     Serial.println("Detectado obstaculo");//cambiar a un boolean
   }
   
@@ -117,13 +122,11 @@ void loop() {
   analogWrite(bluepin, gammatable[(int)blue]);
 
   //Ultrasonic
-  digitalWrite(Trigger, HIGH);
-  delay(10);
-  digitalWrite(Trigger, LOW);
-  t= pulseIn(Echo, HIGH);
-  distance= t/58.2; //Distancia en cm
+  distanceFrente = sensorFrente.getDistance();
+  distanceIzquierda = sensorIzquierda.getDistance();  
+  distanceDerecha = sensorDerecha.getDistance();
 
-  if(distance=5){ //Si hay 5 cm
+  if(distanceFrente<=5){ //Si hay 5 cm
     bool bloqueo = true;
   }
 
