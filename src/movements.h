@@ -1,20 +1,21 @@
-#ifndef MOTORCONTROL_H
-#define MOTORCONTROL_H
+#ifndef MOVEMENTS_H
+#define MOVEMENTS_H
 #include "motor.h"
 #include <Arduino.h>
-class MotorControl {
+class Movements {
 public:
-    MotorControl();
+    Movements();
     void begin();
     void motorFrontLeft(int ENA_PIN, int In1_PIN, int In2_PIN);
     void motorFrontRight(int ENA_PIN, int In1_PIN, int In2_PIN);
     void motorBackLeft(int ENA_PIN, int In1_PIN, int In2_PIN);
     void motorBackRight(int ENA_PIN, int In1_PIN, int In2_PIN);
-    void Avanzar(int speed);
-    void Retroceder(int speed);
-    void Derecha(int speed);
-    void Izquierda(int speed);
+    void avanzar(int speed);
+    void retroceder(int speed);
+    void derecha(int speed);
+    void izquierda(int speed);
     void neutro();
+    void freno();
 
 private:
     Motor frontLeft;
@@ -22,4 +23,4 @@ private:
     Motor backLeft;
     Motor backRight;
 };
-#endif // MOTORCONTROL_H
+#endif // MOVEMENTS_H

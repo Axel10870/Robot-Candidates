@@ -28,3 +28,7 @@ void Motor::parar() {
     digitalWrite(In1_PIN, LOW);
     digitalWrite(In2_PIN, LOW);
 }
+void Motor::frenar() {
+    digitalWrite(In1_PIN, HIGH);
+    digitalWrite(In2_PIN, HIGH);
+}

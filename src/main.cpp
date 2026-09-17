@@ -2,7 +2,7 @@
 #include "Wire.h"
 #include "Adafruit_TCS34725.h"
 #include "Ultrasonico.h"  
-#include "MotorControl.h"
+#include "Movements.h"
 
   //color Sensor set
   #define redpin 3
@@ -14,10 +14,10 @@
     TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
   //pins se definen despues
-  //Car iniciar 4 motores
-MotorControl motorControl;
+  //Car iniciar 4 motores, pines puestos en 0, se cambia en setup()
+Movements movements;
 
-  //Sensor Ultrasonico, primerp pin es el trigger y el segundo es el echo
+  //Sensor Ultrasonico, primer pin es el trigger y el segundo es el echo
   UltraSonico sensorFrente(38, 39);//Frente
   UltraSonico sensorIzquierda(36, 37);//Izquierda
   UltraSonico sensorDerecha(40, 41);//Derecha
@@ -32,14 +32,15 @@ bool bloqueo = false;
 int detector= 4; //IR sensor
 
 void setup() {
-  //Left Front Motor
-  motorControl.begin();
-
+  //Motores poner los pines de cada motor
   //primer pin es ENA, segundo es In1 y tercero es In2
-  motorControl.motorFrontLeft(9, 22, 23); //Left Front Motor
-  motorControl.motorFrontRight(10, 26, 27); //Right Front Motor
-  motorControl.motorBackLeft(11, 30, 31); //Left Back Motor
-  motorControl.motorBackRight(12, 34, 35); //Right Back Motor
+  movements.motorFrontLeft(9, 22, 23); //Left Front Motor
+  movements.motorFrontRight(10, 26, 27); //Right Front Motor
+  movements.motorBackLeft(11, 30, 31); //Left Back Motor
+  movements.motorBackRight(12, 34, 35); //Right Back Motor
+
+//Especificar que son cada pin de todos los motores (Output, etc)
+  movements.begin();
 
   //empieza comunicacion serial
   Serial.begin(9600);

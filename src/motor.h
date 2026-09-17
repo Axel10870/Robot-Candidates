@@ -8,6 +8,7 @@ public:
     void avanzar(int speed);
     void retroceder(int speed);
     void parar();
+    void frenar();
 
 private:
     int ENA_PIN;
