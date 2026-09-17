@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "Wire.h"
 #include "Adafruit_TCS34725.h"
+<<<<<<< HEAD
 
 #define redpin 3
 #define greenpin 5
@@ -12,6 +13,19 @@ byte gammatable[256];
 Adafruit_TCS34725 tcs= Adafruit_TCS34725(
   TCS34725_INTEGRATIONTIME_50mMS, TCS34725_GAIN_4X);
 
+=======
+#include "Ultrasonico.h"
+//a
+  //color Sensor set
+  #define redpin 3
+  #define greenpin 5
+  #define bluepin 6
+  #define commonAnode true
+  byte gammatable[256];
+  Adafruit_TCS34725 tcs= Adafruit_TCS34725(
+    TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+
+>>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
   //pins se definen despues
   //Car
   ////Motor set 1
@@ -30,14 +44,17 @@ const int END_PIN=12; //PMW // Power Right Back Motor
 const int In7_PIN=34;
 const int In8_PIN=35;
 
-  //Sensor Ultrasonico
-const int Trigger=2;
-const int Echo=3;
+  //Sensor Ultrasonico, primerp pin es el trigger y el segundo es el echo
+  UltraSonico sensorFrente(38, 39);//Frente
+  UltraSonico sensorIzquierda(36, 37);//Izquierda
+  UltraSonico sensorDerecha(40, 41);//Derecha
 
   //variables
   //int speed;
-int t;
-int distance;
+//int t;??? dos tiempos??
+double distanceFrente;
+double distanceIzquierda;
+double distanceDerecha;
 bool bloqueo = false;
 int detector= 4; //IR sensor
 
@@ -62,8 +79,9 @@ void setup() {
   pinMode(In7_PIN, OUTPUT);
   pinMode(In8_PIN, OUTPUT);
 
-  //Ultrasonico
+  //empieza comunicacion serial
   Serial.begin(9600);
+<<<<<<< HEAD
   pinMode(Trigger, OUTPUT);
   pinMode(Echo, INPUT);
   digitalWrite(Trigger, LOW);
@@ -71,6 +89,16 @@ void setup() {
   double d=0;
 
   //Infrarojo IR
+=======
+
+  //Ultrasonicos
+  sensorFrente.begin();
+  sensorIzquierda.begin();
+  sensorDerecha.begin();
+  
+
+   //infrarrojo (IR)
+>>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
   pinMode(detector, INPUT);
 
   //color
@@ -101,9 +129,16 @@ void loop() {
   //Infrarrojo
   int valueIR = 0;
   valueIR = digitalRead(detector);
+<<<<<<< HEAD
   if(valueIR == HIGH){ //checa si hay obstaaculo
     Serial.println("Detectado obstaculo");//cambiar a un boolean
   }
+=======
+  if(valueIR == HIGH){ //checa si hay obstaculo
+    Serial.println("Detectado obstaculo");//cambiar a un boolean
+  }
+  
+>>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
   //Colores
   float red, green, blue;
   tcs.getRGB(&red, &green, &blue);
@@ -117,15 +152,36 @@ void loop() {
   analogWrite(redpin, gammatable[(int)red]);
   analogWrite(greenpin, gammatable[(int)green]);
   analogWrite(bluepin, gammatable[(int)blue]);
+<<<<<<< HEAD
   
-  //Ultrasonic
-  digitalWrite(Trigger, HIGH);
+  ////////////                    ULTRASÓNICO FRONTAL
+  digitalWrite(38, HIGH);
   delay(10);
-  digitalWrite(Trigger, LOW);
-  t= pulseIn(Echo, HIGH);
-  distance= t/58.2; //Distancia en cm
+  digitalWrite(38, LOW);
+  t= pulseIn(39, HIGH);
+  distanceFrente= t/58.2; //Distancia en cm
 
-  if(distance<=5){ //Si hay 5 cm o menos
+  if(distanceFrente<=5){ //Si hay 5 cm o menos
+    bool bloqueo = true;
+  }
+
+  if(bloqueo == true){
+    Serial.println("Obstaculo detectado");
+    Parking();
+    delay(1000);
+    neutro();
+  }
+  else{
+    Avanzar(100);
+  }
+
+  //Ultrasonic
+  distanceFrente = sensorFrente.getDistance();
+  distanceIzquierda = sensorIzquierda.getDistance();  
+  distanceDerecha = sensorDerecha.getDistance();
+
+  if(distanceFrente<=5){ //Si hay 5 cm
+>>>>>>> 0eabc0da7dc4ea314ef46952697d3d5dbd266355
     bool bloqueo = true;
   }
 }
