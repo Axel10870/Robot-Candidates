@@ -3,6 +3,7 @@
 #include "motor.h"
 #include <Arduino.h>
 class Movements {
+    //movimeintos del carro
 public:
     Movements();
     void begin();

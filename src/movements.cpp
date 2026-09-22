@@ -1,4 +1,5 @@
 #include "movements.h"
+//clase para controlar los 4 motores, y sus movimientos en conjunto, se le pasan los pines de control y el pin de velocidad
 Movements::Movements()
     :   frontLeft(0, 0, 0),
         frontRight(0, 0, 0),

@@ -2,6 +2,7 @@
 #define MOTOR_H
 #include <Arduino.h>
 class Motor {
+    //movimientos de un motor
 public:
     Motor(int ENA_PIN, int In1_PIN, int In2_PIN);
     void begin();

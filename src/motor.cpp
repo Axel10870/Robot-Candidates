@@ -1,5 +1,5 @@
 #include "motor.h"
-
+//clase para controlar un motor, se le pasan los pines de control y el pin de velocidad
 Motor::Motor(int ENA_PIN, int In1_PIN, int In2_PIN) {
     this->ENA_PIN = ENA_PIN;
     this->In1_PIN = In1_PIN;
