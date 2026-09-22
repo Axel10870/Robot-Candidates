@@ -7,13 +7,12 @@
 class CorrectionCentrado {
 private:
     long referenciaIzq, referenciaDer;
-    bool paredIzq, paredDer;
+    bool aperturaIzq, aperturaDer;
 public:
     long distIzq, distDer;
     CorrectionCentrado();
-    void getCorrection();
+    long getCorrection(Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha);
     void detectarApertura();
     void centrar(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha);
-
 }
 #endif // CORRECTIONCENTRADO_H
