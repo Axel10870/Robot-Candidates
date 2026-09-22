@@ -28,8 +28,14 @@ Movements movements;
 double distanceFrente;
 double distanceIzquierda;
 double distanceDerecha;
-bool bloqueo = false;
 int detector= 4; //IR sensor
+bool PelotaenPosesion = false;
+bool bloqueofrontal = false;
+bool bloqueolateralizq = false;
+bool bloqueolateralder = false;
+bool valueIR = LOW;
+
+int STAGE = 1; //Etapa del circuito
 
 void setup() {
   //Motores poner los pines de cada motor
@@ -74,15 +80,101 @@ void setup() {
       gammatable[i] = x;
     }
   }
+  movements.avanzar(100); // Avanza al inicio para no confundirse 
+  delay(1000);
 }
 
 
 void loop() {
+//                       ULTRASÓNICOS | DETECCIÓN DE OBSTÁCULOS (PAREDES)
+  if(STAGE == 1){ //           ETAPA 1 CIRCUITO B
+    distanceFrente = sensorFrente.getDistance();
+    distanceIzquierda = sensorIzquierda.getDistance();
+    distanceDerecha = sensorDerecha.getDistance();
+
+
+    if(distanceFrente<=5){ //Si hay 5 cm o menos
+    bloqueofrontal = true;
+    }
+    if(distanceIzquierda<=5){ //Si hay 5 cm o menos
+    bloqueolateralizq = true;
+    }
+    if(distanceDerecha<=5){ //Si hay 5 cm o menos
+    bloqueolateralder = true;
+    }
+
+    if(bloqueofrontal == false && bloqueolateralizq == false && PelotaenPosesion == true){
+      movements.avanzar(25);
+      delay(500);
+      Serial.println("Salida encontrada! :D");
+      movements.freno();
+      delay(200);
+      movements.neutro();
+      movements.izquierda(100);
+      delay(500);
+      movements.freno();
+      movements.avanzar(50);
+      delay(500);
+      movements.neutro();
+      STAGE = 2; //Cambio de etapa
+    }
+
+    if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
+      movements.avanzar(25);
+      delay(250);
+      Serial.println("Camino derecho detectado. Posible pelota!");
+      movements.freno();
+      delay(200);
+      movements.neutro();
+      movements.derecha(100);
+      delay(500);
+      movements.freno();
+      delay(200);
+      movements.neutro();
+      movements.avanzar(50);
+      delay(500);
+      movements.neutro();
+    }
+
+    if(bloqueofrontal == true && bloqueolateralizq == true && bloqueolateralder == true PelotaenPosesion == false){
+      Serial.println("Pelota encontrada!");
+      movements.avanzar(50);
+      delay(500);
+      movements.neutro();
+      //GARRA ON                                             <<<<=========
+      PelotaenPosesion = true;
+      movements.retroceder(50);
+      delay(1000);
+      movements.neutro();
+      movements.derecha(50);
+      delay(500);
+      movements.neutro();
+    }
+
+    if(bloqueofrontal == true){
+      Serial.println("Obstaculo físico detectado");
+      movements.freno();
+      delay(200);
+      movements.neutro();
+      movements.derecha(75);
+      delay(500);
+      movements.avanzar(100);
+      delay(200);
+      movements.neutro();
+    }
+    else {
+      movements.avanzar(100);
+    }
+  }
+  else if(PelotaenPosesion){ //           ETAPA 2 CIRCUITO B
+    movements.avanzar(100);
+  }
+  
+
   //Infrarrojo
-  int valueIR = 0;
   valueIR = digitalRead(detector);
   if(valueIR == HIGH){ //checa si hay obstaaculo
-    Serial.println("Detectado obstaculo");//cambiar a un boolean
+    Serial.println("Barrera infraroja detectada");//cambiar a un boolean
   }
 
   //////////////                                 COLORES
@@ -101,26 +193,11 @@ void loop() {
   
 
 
-  if(distanceFrente<=5){ //Si hay 5 cm o menos
-    bool bloqueo = true;
-  }
-
-  if(bloqueo == true){
-    Serial.println("Obstaculo detectado");
-    movements.freno();
-    delay(1000);
-    movements.neutro();
-  }
-  else{
-    movements.avanzar(100);
-  }
+  
 
   //Ultrasonic medir distancia
   distanceFrente = sensorFrente.getDistance();
   distanceIzquierda = sensorIzquierda.getDistance();  
   distanceDerecha = sensorDerecha.getDistance();
 
-  if(distanceFrente<=5){ //Si hay 5 cm
-    bool bloqueo = true;
-  }
 }

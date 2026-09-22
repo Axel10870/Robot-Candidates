@@ -18,7 +18,7 @@
     delay(10);
     digitalWrite(triggerPin, LOW);
     t= pulseIn(echoPin, HIGH);
-    distance = t / 58.0; // Convert to centimeters
+    distance = t / 58.2; // Convert to centimeters
     return distance;
  }
 
