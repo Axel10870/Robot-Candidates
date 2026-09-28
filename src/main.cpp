@@ -23,19 +23,31 @@ Movements movements;
   UltraSonico sensorDerecha(40, 41);//Derecha
 
   //variables
-  //int speed;
 //int t;??? dos tiempos??
 double distanceFrente;
 double distanceIzquierda;
 double distanceDerecha;
 int detector= 4; //IR sensor
 bool PelotaenPosesion = false;
+int STAGE = 1; ///////////////////////////////Etapa del circuito////////////////////////////
+bool Union = false; ///////UNION DE ETAPAS////////
+
+
+//STAGE 1
 bool bloqueofrontal = false;
 bool bloqueolateralizq = false;
 bool bloqueolateralder = false;
-bool valueIR = LOW;
 
-int STAGE = 1; //Etapa del circuito
+//STAGE 2
+bool valueIR = LOW;
+String Rosa; //Dirección
+bool bloqueoIR;
+
+//STAGE 3
+String Color; //Color detectado
+int direccion = 0; //Dirección del color detectado
+String Lectura;
+int Traduccion_lectura; //Traducción de la lectura del color a un número para comparar con la dirección
 
 void setup() {
   //Motores poner los pines de cada motor
@@ -94,13 +106,22 @@ void loop() {
 
 
     if(distanceFrente<=5){ //Si hay 5 cm o menos
-    bloqueofrontal = true;
+      bloqueofrontal = true;
+    }
+    else{
+      bloqueofrontal = false;
     }
     if(distanceIzquierda<=5){ //Si hay 5 cm o menos
-    bloqueolateralizq = true;
+      bloqueolateralizq = true;
+    }
+    else{
+      bloqueolateralizq = false;
     }
     if(distanceDerecha<=5){ //Si hay 5 cm o menos
-    bloqueolateralder = true;
+      bloqueolateralder = true;
+    }
+    else{
+      bloqueolateralder = false;
     }
 
     if(bloqueofrontal == false && bloqueolateralizq == false && PelotaenPosesion == true){
@@ -117,9 +138,10 @@ void loop() {
       delay(500);
       movements.neutro();
       STAGE = 2; //Cambio de etapa
+      Union = true; 
     }
 
-    if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
+    else if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
       movements.avanzar(25);
       delay(250);
       Serial.println("Camino derecho detectado. Posible pelota!");
@@ -136,7 +158,7 @@ void loop() {
       movements.neutro();
     }
 
-    if(bloqueofrontal == true && bloqueolateralizq == true && bloqueolateralder == true PelotaenPosesion == false){
+    else if(bloqueofrontal == true && bloqueolateralizq == true && bloqueolateralder == true && PelotaenPosesion == false){
       Serial.println("Pelota encontrada!");
       movements.avanzar(50);
       delay(500);
@@ -162,42 +184,165 @@ void loop() {
       delay(200);
       movements.neutro();
     }
-    else {
+    else{
       movements.avanzar(100);
     }
   }
-  else if(PelotaenPosesion){ //           ETAPA 2 CIRCUITO B
-    movements.avanzar(100);
+
+
+  if (STAGE == 2 && Union == true){ //           CAMBIO ETAPA 1-2 Circuito B
+    movements.avanzar(50);
+    delay(200);
+    movements.neutro();
+    Union = false;
+    Rosa = "Norte";
+  }
+
+
+  else if(STAGE == 2 && Union == false){ //           ETAPA 2 CIRCUITO B
+    
+    ///////////SENSORES///////
+    //Ultrasónico
+    distanceFrente = sensorFrente.getDistance();
+    if(distanceFrente<=5){ //Si hay 5 cm o menos
+      bloqueofrontal = true;
+    }
+    else{
+      bloqueofrontal = false;
+    }
+    //Infrarrojo
+    valueIR = digitalRead(detector);
+    if(valueIR == HIGH){ //checa si hay obstaaculo
+      Serial.println("Barrera infraroja detectada");//cambiar a un boolean
+      bloqueoIR = true;
+    }
+    else {
+      bloqueoIR = false;
+    }
+
+
+    //////////////////////MOVIMIENTO/////////////////////
+    if(Rosa == "Este" && bloqueofrontal == true){         //DAR LA VUELTA PARA DEVOLVERSE
+      movements.izquierda(100);
+      delay(2000);
+      movements.neutro();
+      Rosa = "Oeste";
+      delay(200);
+    }
+    else if(Rosa == "Oeste" && bloqueofrontal == true){             //VOLTEAR AL FRENTE PARA CONTINUAR
+      movements.derecha(100);
+      delay(1000);
+      movements.neutro();
+      Rosa = "Norte";
+      delay(200);
+    }
+    else if(Rosa == "Norte" && bloqueoIR == true){           // DETECTAR BARRERA IR Y SEGUIR BUSCANDO
+      movements.freno();
+      delay(200);
+      movements.retroceder(50);
+      delay(500);
+      movements.neutro();
+      movements.derecha(100);
+      delay(500);
+      movements.neutro();
+      Rosa = "Este";
+      movements.avanzar(100);
+      delay(500);//                                 <<<==== 16 CENTIMETROS
+      movements.neutro();
+      delay(200);
+      movements.izquierda(100);
+      delay(500);
+      movements.neutro();
+      Rosa = "Norte";
+    }
+    else if(Rosa == "Norte" && bloqueoIR == false){
+      movements.avanzar(100);
+    }
   }
   
 
-  //Infrarrojo
-  valueIR = digitalRead(detector);
-  if(valueIR == HIGH){ //checa si hay obstaaculo
-    Serial.println("Barrera infraroja detectada");//cambiar a un boolean
+
+  if(STAGE == 3 && Union == true){ //           CAMBIO ETAPA 2-3 Circuito B
+    movements.avanzar(50);
+    delay(200);
+    movements.neutro();
+    Union = false;
   }
+  /////////////////////////////// FALTA DISTINGUIR Y ENCONTRAR SALIDA //////////////////////////////////
 
-  //////////////                                 COLORES
-  float red, green, blue;
-  tcs.getRGB(&red, &green, &blue);
-  tcs.setInterrupt(true);
-  ///* para checar que valores lee (quitar primeras 2  lineas para comentar todo)
-  Serial.print("R:\t"); Serial.print(int(red));
-  Serial.print("\tG:\t"); Serial.print(int(green));
-  Serial.print("\tB:\t"); Serial.print(int(blue));
-  Serial.print("\n");
-  //*/
-  analogWrite(redpin, gammatable[(int)red]);
-  analogWrite(greenpin, gammatable[(int)green]);
-  analogWrite(bluepin, gammatable[(int)blue]);
-  
+  if(STAGE == 3 && Union == false){ //           ETAPA 3 CIRCUITO B
+    //////////////                       ORIENTACIÓN
+    if(direccion == 0){
+      Rosa = "Norte";
+    }
+    else if(direccion == 1){
+      Rosa = "Este";
+    }
+    else if(direccion == 2){
+      Rosa = "Sur";
+    }
+    else if(direccion == 3){
+      Rosa = "Oeste";
+    }
+    else if(direccion == 4){
+      direccion = 0;
+    }
+
+    //////////////                                 COLORES
+    float red, green, blue;
+    tcs.getRGB(&red, &green, &blue);
+    tcs.setInterrupt(true);
+    ///* para checar que valores lee (quitar primeras 2  lineas para comentar todo)
+    Serial.print("R:\t"); Serial.print(int(red));
+    Serial.print("\tG:\t"); Serial.print(int(green));
+    Serial.print("\tB:\t"); Serial.print(int(blue));
+    Serial.print("\n");
+    //*/
+    analogWrite(redpin, gammatable[(int)red]);
+    analogWrite(greenpin, gammatable[(int)green]);
+    analogWrite(bluepin, gammatable[(int)blue]);
 
 
-  
+    ////// DELIMITAR RANGOS DE COLORES PARA DETECTAR CUAL ES EL COLOR CORRECTO Y LA ACCIÓN POR HACER
 
-  //Ultrasonic medir distancia
-  distanceFrente = sensorFrente.getDistance();
-  distanceIzquierda = sensorIzquierda.getDistance();  
-  distanceDerecha = sensorDerecha.getDistance();
+
+    //Action detection
+    if(Color == "Naranja"){
+      Lectura = "Norte";
+      Traduccion_lectura = 0;
+    }
+    else if(Color == "Celeste"){
+      Lectura = "Este";
+      Traduccion_lectura = 1;
+    }
+    else if(Color == "Rosa"){
+      Lectura = "Sur";
+      Traduccion_lectura = 2;
+    }
+    else if(Color == "Amarrillo"){
+      Lectura = "Oeste";
+      Traduccion_lectura = 3;
+    }
+
+    // Actions
+    if(Traduccion_lectura < direccion){
+      movements.izquierda(100);
+      delay(500);
+      movements.neutro();
+      direccion--;
+    }
+    else if(Traduccion_lectura > direccion){
+      movements.derecha(100);
+      delay(500);
+      movements.neutro();
+      direccion++;
+    }
+    else if(Traduccion_lectura == direccion){
+      movements.avanzar(100);
+      delay(500);
+      movements.neutro();
+    }
+
+  }
 
 }
