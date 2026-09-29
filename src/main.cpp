@@ -42,6 +42,7 @@ bool bloqueolateralder = false;
 bool valueIR = LOW;
 String Rosa; //Dirección
 bool bloqueoIR;
+bool Procesosalida = false; //Para que no se quede en un loop infinito de buscar la salida
 
 //STAGE 3
 String Color; //Color detectado
@@ -210,6 +211,13 @@ void loop() {
     else{
       bloqueofrontal = false;
     }
+    distanceIzquierda = sensorIzquierda.getDistance();
+    if(distanceIzquierda<=5){ //Si hay 5 cm o menos
+      bloqueolateralizq = true;
+    }
+    else{
+      bloqueolateralizq = false;
+    }
     //Infrarrojo
     valueIR = digitalRead(detector);
     if(valueIR == HIGH){ //checa si hay obstaaculo
@@ -222,21 +230,37 @@ void loop() {
 
 
     //////////////////////MOVIMIENTO/////////////////////
-    if(Rosa == "Este" && bloqueofrontal == true){         //DAR LA VUELTA PARA DEVOLVERSE
-      movements.izquierda(100);
+    if(Rosa == "Norte" && bloqueofrontal == true && bloqueoIR == false){         //DAR LA VUELTA PARA DEVOLVERSE
+      Serial.println("Momento de encontrar la puerta de salida!");
+      Procesosalida = true;
+      movements.izquierda(30);
+      delay(1000);
+      movements.neutro();           /// QUEDAR VOLTEANDO AL ESTE
+      Rosa = "Este";
+      
+    }
+    else if(Rosa == "Este" && bloqueofrontal == true){         //DAR LA VUELTA PARA DEVOLVERSE
+      movements.izquierda(30);
       delay(2000);
       movements.neutro();
       Rosa = "Oeste";
       delay(200);
     }
+    else if(Rosa == "Este" && bloqueofrontal == false && Procesosalida == false){
+      movements.izquierda(30);
+      delay(1200);
+      movements.neutro();
+      Rosa = "Norte";
+      delay(200);
+    }
     else if(Rosa == "Oeste" && bloqueofrontal == true){             //VOLTEAR AL FRENTE PARA CONTINUAR
-      movements.derecha(100);
+      movements.derecha(30);
       delay(1000);
       movements.neutro();
       Rosa = "Norte";
       delay(200);
     }
-    else if(Rosa == "Norte" && bloqueoIR == true){           // DETECTAR BARRERA IR Y SEGUIR BUSCANDO
+    else if(Rosa == "Norte" && bloqueoIR == true && Procesosalida == false){           // DETECTAR BARRERA IR Y SEGUIR BUSCANDO
       movements.freno();
       delay(200);
       movements.retroceder(50);
@@ -246,18 +270,27 @@ void loop() {
       delay(500);
       movements.neutro();
       Rosa = "Este";
-      movements.avanzar(100);
+      movements.avanzar(50);
       delay(500);//                                 <<<==== 16 CENTIMETROS
       movements.neutro();
+    }
+    else if(Procesosalida == true && Rosa == "Este" && bloqueolateralizq == false){
       delay(200);
-      movements.izquierda(100);
+      movements.izquierda(50);
       delay(500);
       movements.neutro();
       Rosa = "Norte";
+      Serial.println("Salida encontrada! :D");
+      movements.avanzar(50);
+      delay(500);
+      movements.neutro();
+      STAGE = 3; //Cambio de etapa
+      Union = true;
     }
-    else if(Rosa == "Norte" && bloqueoIR == false){
-      movements.avanzar(100);
+    else if(Rosa == "Norte" && bloqueoIR == false && bloqueofrontal == false){ // Avanzar normal
+      movements.avanzar(50);
     }
+    
   }
   
 
