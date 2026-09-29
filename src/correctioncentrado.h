@@ -6,13 +6,15 @@
 //clase para centrar el robot con 2 paredes a los lados y ver si hay una apertura/ruta
 class CorrectionCentrado {
 private:
-    long referenciaIzq, referenciaDer;
-    bool aperturaIzq, aperturaDer;
+    bool aperturaIzq, aperturaDer, aperturaFrente;
 public:
-    long distIzq, distDer;
+    float distIzq, distDer, distFrente;
     CorrectionCentrado();
-    long getCorrection(Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha);
-    void detectarApertura();
+    float getCorrection(Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha);
+    void detectarApertura(Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha, Ultrasonico &sensorFrente);
     void centrar(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha);
+    bool isAperturaIzq();
+    bool isAperturaDer();
+    bool isAperturaFrente();
 }
 #endif // CORRECTIONCENTRADO_H

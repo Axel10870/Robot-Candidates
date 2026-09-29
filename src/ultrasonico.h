@@ -6,7 +6,7 @@ class UltraSonico {
 public:
     UltraSonico(int triggerPin, int echoPin);
     void begin();
-    long getDistance();// en cm
+    float getDistance();// en cm
 
 private:
     int triggerPin;

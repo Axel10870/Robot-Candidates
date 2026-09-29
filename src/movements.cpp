@@ -35,7 +35,14 @@ Movements::Movements()
         backLeft.avanzar(speed);
         backRight.avanzar(speed);
     }
-
+    void Movements::avanzarIzquierda(int speed) {
+        frontLeft.avanzar(speed);
+        backLeft.avanzar(speed);
+    }
+    void Movements::avanzarDerecha(int speed) {
+        frontRight.avanzar(speed);
+        backRight.avanzar(speed);
+    }
     void Movements::retroceder(int speed) {
         frontLeft.retroceder(speed);
         frontRight.retroceder(speed);

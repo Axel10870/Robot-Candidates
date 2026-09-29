@@ -12,6 +12,8 @@ public:
     void motorBackLeft(int ENA_PIN, int In1_PIN, int In2_PIN);
     void motorBackRight(int ENA_PIN, int In1_PIN, int In2_PIN);
     void avanzar(int speed);
+    void avanzarIzquierda(int speed);
+    void avanzarDerecha(int speed);
     void retroceder(int speed);
     void derecha(int speed);
     void izquierda(int speed);

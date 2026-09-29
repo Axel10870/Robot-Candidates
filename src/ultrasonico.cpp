@@ -11,9 +11,9 @@
     digitalWrite(triggerPin, LOW);
  }
 // Obtiene la distancia medida por el sensor ultrasónico en centímetros, en loop()
- long UltraSonico :: getDistance() {
-    double t=0;
-    double distance=0;
+ float UltraSonico :: getDistance() {
+    float t=0;
+    float distance=0;
     digitalWrite(triggerPin, HIGH);
     delay(10);
     digitalWrite(triggerPin, LOW);
