@@ -10,9 +10,9 @@ private:
 public:
     float distIzq, distDer, distFrente;
     CorrectionCentrado();
-    float getCorrection(Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha);
-    void detectarApertura(Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha, Ultrasonico &sensorFrente);
-    void centrar(Movements &movements, Ultrasonico &sensorIzquierda, Ultrasonico &sensorDerecha);
+    float getCorrection(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha);
+    void detectarApertura(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
+    void centrar(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha);
     bool isAperturaIzq();
     bool isAperturaDer();
     bool isAperturaFrente();

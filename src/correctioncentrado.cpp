@@ -31,6 +31,7 @@ void CorrectionCentrado::detectarApertura(UltraSonico &sensorIzquierda, UltraSon
     aperturaDer = distDer >= 12.0? true : false;
     aperturaFrente = distFrente >= 20.0? true : false;
 }
+//te dice cuando hay una ruta/nodo abierto por explorar usado por backtracking
 bool CorrectionCentrado::isAperturaIzq() {
     return aperturaIzq;
 }
