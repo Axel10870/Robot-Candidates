@@ -12,7 +12,7 @@ BackTracking::BackTracking() {
     Aperturas vecinos[TAM][TAM];
     memset(visited, false, sizeof(visited));
 }
-void solver(int fila, int columna,int direccion) {
+void BackTracking::solver(int fila, int columna,int direccion) {
     if(solved()){
         return;
     }
@@ -25,7 +25,7 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     int nuevaFila = fila + direccionFila[direccion];
     int nuevaColumna = columna + direccionColumna[direccion];
     visited[nuevaFila][nuevaColumna] = true;
-    aperturas.leerAperturas(fila, columna);
+    aperturas.leerAperturas(fila, columna, direccion);
     vecinos[fila][columna] = aperturas; // te dice sus vecinos y si se puede ir o no
     //intenta ir a cada casilla vecina, en orden de preferencia, recto, derecha, izquierda, volver
     for (int i = 0; i < 4; i++) {

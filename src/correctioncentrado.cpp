@@ -27,8 +27,8 @@ void CorrectionCentrado::detectarApertura(UltraSonico &sensorIzquierda, UltraSon
     distIzq = sensorIzquierda.getDistance();
     distDer = sensorDerecha.getDistance();
     distFrente = sensorFrente.getDistance();
-    aperturaIzq = distIzq >= 12.0? true : false;
-    aperturaDer = distDer >= 12.0? true : false;
+    aperturaIzq = distIzq >= 15.0? true : false;
+    aperturaDer = distDer >= 15.0? true : false;
     aperturaFrente = distFrente >= 20.0? true : false;
 }
 //te dice cuando hay una ruta/nodo abierto por explorar usado por backtracking
