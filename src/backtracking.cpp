@@ -1,34 +1,37 @@
 #include "backTracking.h"
-//record when hit a wall, and then go back to the last position and try another direction
-//complete answer at reaching
-/* codigo de video
-void dfs(int u, int target, vector<int> adj[], bool visited[],vector<int>& path){
-    visited[u] = true;
-    path.push_back(u);
-    if(u == target){
-        for(int v:path){
-            cout<<v<<" ";
-        }
-        cout<<endl;
-    }else{
-        for(int v:adj[u]){
-            if(!visited[v]){
-                dfs(v,target,adj,visited,path);
-            }
+BackTracking::BackTracking() {
+    //para marcar movimiento a cada direccion, N=0, E=1, S=2, O=3
+    const int direccionFila[4] = {-1, 0, 1, 0};
+    const int direccionColumna[4] = {0, 1, 0, -1};
+    // prefrencia de movimiento, 0=recto, 1=derecha, 3=izquierda
+    // y factor de correccion en caso de ver a otro lado, +1 giro derecha, +3 giro izquierda
+    const int direccionMovimiento[3]= {0,1,3};
+    const int TAM = 40;
+    bool visited[TAM][TAM];
+    Aperturas aperturas;
+    Aperturas vecinos[TAM][TAM];
+    memset(visited, false, sizeof(visited));
+}
+void solver(int fila, int columna,int direccion) {
+    if(solved()){
+        return;
+    }
+    else{
+        dfs(fila, columna, direccion); // pasa casilla donde estaba y direccion a la que se movio
+    }
+}
+void BackTracking::dfs(int fila, int columna, int direccion) {
+    //traduce a su nueva posicion en la matriz
+    int nuevaFila = fila + direccionFila[direccion];
+    int nuevaColumna = columna + direccionColumna[direccion];
+    visited[nuevaFila][nuevaColumna] = true;
+    aperturas.leerAperturas(fila, columna);
+    vecinos[fila][columna] = aperturas; // te dice sus vecinos y si se puede ir o no
+    //intenta ir a cada casilla vecina, en orden de preferencia, recto, derecha, izquierda, volver
+    for (int i = 0; i < 4; i++) {
+        //dentro del mapa
+        if (nuevaFila >= 0 && nuevaFila < TAM && nuevaColumna >= 0 && nuevaColumna < TAM && !visited[nuevaFila][nuevaColumna]) {
+            dfs(nuevaFila, nuevaColumna, direccion);
         }
     }
-    visited[u] = false;
-    path.pop_back();
-}*/
-//entendimiento del codigo por mi parte hasta el momento
-BackTracking::BackTracking() {
-bool visited[100]=false;
-}
-void BackTracking::dfs( ,Node v) {
-    visit(v);
-    marked[v] = true;
-    for w in neighbors(v) do
-        if(!visited(w)){
-            dfs(w)
-        }
 }
