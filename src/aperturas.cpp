@@ -1,19 +1,19 @@
 #include "Aperturas.h"
 //traductor de casillas relativas a absolutas, para ver si hay apertura en cada direccion
-Aperturas::Aperturas(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente) {
+Aperturas::Aperturas() {
     for (int i = 0; i < 4; i++) {
         aperturas[i] = false;
     }
     casillasVecinas = CorrectionCentrado();
-    //pasa sensores para ver si hay pared o no
-    casillasVecinas.detectarApertura(sensorIzquierda, sensorDerecha, sensorFrente);
+    
 }
-void Aperturas::leerAperturas(int fila, int columna, int direccion) {
+void Aperturas::leerAperturas(int fila, int columna, int direccion, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente) {
     //se asume que el robot esta en la casilla (fila, columna) y mirando hacia la direccion
     //direccion: 0=N, 1=E, 2=S, 3=O
     //se leen los sensores ultrasónicos para determinar si hay apertura en cada dirección
     //se actualiza el arreglo aperturas con true si hay apertura y false si no hay
-    //para simplificar, se asume que el robot puede ir a cualquier dirección si no hay pared
+    //pasa sensores para ver si hay pared o no
+    casillasVecinas.detectarApertura(sensorIzquierda, sensorDerecha, sensorFrente);
     for (int i = 0; i < 4; i++) {
         int d= (i+direccion) % 4; //direccion absoluta a la que mira el robot
         if(direccion==i){

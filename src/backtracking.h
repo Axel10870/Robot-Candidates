@@ -1,11 +1,22 @@
 #ifndef BACKTRACKING_H
 #define BACKTRACKING_H
+#include <Arduino.h>
+#include "Aperturas.h"
+#include "Movements.h"
 
 // Your header file content here
 class BackTracking {
 public:
     BackTracking();
+    void solver(int fila, int columna,int direccion);
 private:
-    void dfs();
+    void dfs(int fila, int columna, int direccion);
+    //para marcar movimiento a cada direccion, N=0, E=1, S=2, O=3
+    const int direccionFila[4] = {-1, 0, 1, 0};
+    const int direccionColumna[4] = {0, 1, 0, -1};
+    // prefrencia de movimiento, 0=recto, 1=derecha, 3=izquierda
+    // y factor de correccion en caso de ver a otro lado, +1 giro derecha, +3 giro izquierda
+    const int direccionMovimiento[3]= {0,1,3};
+    const int TAM = 40;
 };
 #endif // BACKTRACKING_H
