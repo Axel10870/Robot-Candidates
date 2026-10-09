@@ -1,8 +1,6 @@
 #include "backTracking.h"
-BackTracking::BackTracking() {
-    bool visited[TAM][TAM];
-    Aperturas aperturas;
-    Aperturas vecinos[TAM][TAM]= {Aperturas()};
+BackTracking::BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente)
+    : aperturas(sensorIzquierda, sensorDerecha, sensorFrente) {
     memset(visited, false, sizeof(visited));
 }
 void BackTracking::solver(int fila, int columna,int direccion) {

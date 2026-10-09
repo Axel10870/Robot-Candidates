@@ -7,8 +7,12 @@
 class Aperturas {
 public:
     Aperturas();
-    void leerAperturas(int fila, int columna, int direccion, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
+    Aperturas(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
+    void leerAperturas(int fila, int columna, int direccion);
     bool puedeIr(int fila, int columna);
+    UltraSonico &sensorIzquierda;
+    UltraSonico &sensorDerecha;
+    UltraSonico &sensorFrente;
 private:
     bool aperturas[4]; // N, E, S, O
     CorrectionCentrado casillasVecinas;

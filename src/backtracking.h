@@ -7,8 +7,12 @@
 // Your header file content here
 class BackTracking {
 public:
-    BackTracking();
+    BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
     void solver(int fila, int columna,int direccion);
+    static constexpr int TAM = 40;
+    bool visited[TAM][TAM];
+    Aperturas vecinos[TAM][TAM];
+    Aperturas aperturas;
 private:
     void dfs(int fila, int columna, int direccion);
     //para marcar movimiento a cada direccion, N=0, E=1, S=2, O=3
@@ -17,6 +21,7 @@ private:
     // prefrencia de movimiento, 0=recto, 1=derecha, 3=izquierda
     // y factor de correccion en caso de ver a otro lado, +1 giro derecha, +3 giro izquierda
     const int direccionMovimiento[3]= {0,1,3};
-    const int TAM = 40;
+    
+    
 };
 #endif // BACKTRACKING_H
