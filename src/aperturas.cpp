@@ -45,3 +45,12 @@ void Aperturas::leerAperturas(int fila, int columna, int direccion) {
         }
     }
 }
+Aperturas& Aperturas::operator=(const Aperturas& other) {
+    if (this != &other) {
+        for (int i = 0; i < 4; ++i) {
+            aperturas[i] = other.aperturas[i];
+        }
+        casillasVecinas = other.casillasVecinas;
+    }
+    return *this;
+}

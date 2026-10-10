@@ -10,6 +10,7 @@ public:
     Aperturas(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
     void leerAperturas(int fila, int columna, int direccion);
     bool puedeIr(int fila, int columna);
+    Aperturas& operator=(const Aperturas& other);
     UltraSonico &sensorIzquierda;
     UltraSonico &sensorDerecha;
     UltraSonico &sensorFrente;
