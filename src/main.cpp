@@ -324,17 +324,42 @@ void loop() {
     //////////////                                 COLORES
     float red, green, blue;
     tcs.getRGB(&red, &green, &blue);
-    tcs.setInterrupt(true);
-    ///* para checar que valores lee (quitar primeras 2  lineas para comentar todo)
+    tcs.setInterrupt(false);
+
     Serial.print("R:\t"); Serial.print(int(red));
     Serial.print("\tG:\t"); Serial.print(int(green));
     Serial.print("\tB:\t"); Serial.print(int(blue));
     Serial.print("\n");
     //*/
-    analogWrite(redpin, gammatable[(int)red]);
-    analogWrite(greenpin, gammatable[(int)green]);
-    analogWrite(bluepin, gammatable[(int)blue]);
+    analogWrite(redpin, gammatable[(int)constrain(red, 0, 255)]);
+    analogWrite(greenpin, gammatable[(int)constrain(green, 0, 255)]);
+    analogWrite(bluepin, gammatable[(int)constrain(blue, 0, 255)]);
 
+
+    // Calculo de porcentaje de cada color
+    float sumaTotal = red + green + blue + 1.0;
+    float rNorm = (red / sumaTotal) * 100.0;
+    float gNorm = (green / sumaTotal) * 100.0;
+    float bNorm = (blue / sumaTotal) * 100.0;
+
+    //Corroborar colores (supervisión)
+    Serial.print("R_norm: "); Serial.print(rNorm);
+    Serial.print(" | G_norm: "); Serial.print(gNorm);
+    Serial.print(" | B_norm: "); Serial.println(bNorm);
+
+    //Interpretación de colores según porcentaje de cada color
+    if (rNorm > 45.0 && gNorm > 30.0 && bNorm < 25.0) {
+      Color = "Naranja";     // Predomina Rojo y Verde moderado
+    } 
+    else if (gNorm > 35.0 && bNorm > 30.0 && rNorm < 30.0) {
+      Color = "Celeste";     // Predomina Verde y Azul alto
+    } 
+    else if (rNorm > 40.0 && bNorm > 30.0 && gNorm < 25.0) {
+      Color = "Rosa";        // Predomina Rojo y Azul con poco verde
+    } 
+    else if (rNorm > 35.0 && gNorm > 35.0 && bNorm < 20.0) {
+      Color = "Amarrillo";   // Rojo y Verde altos (mezcla para amarillo)
+    }
 
     ////// DELIMITAR RANGOS DE COLORES PARA DETECTAR CUAL ES EL COLOR CORRECTO Y LA ACCIÓN POR HACER
 
@@ -372,7 +397,7 @@ void loop() {
     }
     else if(Traduccion_lectura == direccion){
       movements.avanzar(100);
-      delay(500);
+      delay(500);//                                <<<==== Ajustar a una casilla
       movements.neutro();
     }
 
