@@ -100,7 +100,6 @@ void loop() {
   analogWrite(bluepin, gammatable[(int)blue]);
   
 
-
   if(distanceFrente<=5){ //Si hay 5 cm o menos
     bool bloqueo = true;
   }
