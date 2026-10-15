@@ -1,7 +1,8 @@
 #include "backTracking.h"
-BackTracking::BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente)
+BackTracking::BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente, Movements &robot)
     : aperturas(sensorIzquierda, sensorDerecha, sensorFrente) {
     memset(visited, false, sizeof(visited));
+    memset(deadEnd, false, sizeof(deadEnd));
 }
 void BackTracking::solver(int fila, int columna,int direccion) {
     if(true){
@@ -15,14 +16,30 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     //traduce a su nueva posicion en la matriz
     int nuevaFila = fila + direccionFila[direccion];
     int nuevaColumna = columna + direccionColumna[direccion];
-    visited[nuevaFila][nuevaColumna] = true;
-    aperturas.leerAperturas(fila, columna, direccion);
-    vecinos[fila][columna] = aperturas; // te dice sus vecinos y si se puede ir o no
-    //intenta ir a cada casilla vecina, en orden de preferencia, recto, derecha, izquierda, volver
-    for (int i = 0; i < 4; i++) {
+    if(!visited[nuevaFila][nuevaColumna]){ //en caso de no haber ido ahi nunca, lee sus aperturas y guarda en la matriz de vecinos
+        aperturas.leerAperturas(fila, columna, direccion);
+        vecinos[fila][columna] = aperturas; // te dice sus vecinos y si se puede ir o no
+        visited[nuevaFila][nuevaColumna] = true;
+    }
+    if(deadEnd[fila][columna]){ //si de donde viene no tiene continuacion, lo elimina de la lista de vecinos
+        vecinos[nuevaFila][nuevaColumna].aperturas[(direccion+2)%4] = false;//marca de donde viene como dead end/ no puede ir
+    }
+    //intenta ir a cada casilla vecina, en orden de preferencia, recto, derecha, izquierda, volver fuera del for para marcar que no hay nada de donde viene
+    for (int i = 0; i < 3; i++) {
         //dentro del mapa
-        if (nuevaFila >= 0 && nuevaFila < TAM && nuevaColumna >= 0 && nuevaColumna < TAM && !visited[nuevaFila][nuevaColumna]) {
-            dfs(nuevaFila, nuevaColumna, direccion);
+        if (nuevaFila >= 0 && nuevaFila < TAM && nuevaColumna >= 0 && nuevaColumna < TAM) {
+            //si se puede ir a esa direccion
+            if (vecinos[nuevaFila][nuevaColumna].aperturas[(direccion + direccionMovimiento[i]) % 4]) {
+                dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
+            }
+            
         }
+    }
+    //en caso de que no haya salida hacia ninguna direccion que no sea volver, marca como dead end y vuelve a la casilla anterior
+    deadEnd[nuevaFila][nuevaColumna] = true;
+    if(!deadEnd[fila][columna]){//si de donde viene no es dead end entonces vuelve y marca que no puede ir a la casilla donde estaba
+        vecinos[fila][columna].aperturas[(direccion+2)%4] = false;//marca de donde viene como dead end/ no puede ir
+        
+        dfs(nuevaFila, nuevaColumna, (direccion+2)%4); //vuelve a la casilla anterior
     }
 }

@@ -7,10 +7,11 @@
 // Your header file content here
 class BackTracking {
 public:
-    BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
+    BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente, Movements &robot);
     void solver(int fila, int columna,int direccion);
     static constexpr int TAM = 40;
     bool visited[TAM][TAM];
+    bool deadEnd[TAM][TAM];
     Aperturas vecinos[TAM][TAM];
     Aperturas aperturas;
 private:

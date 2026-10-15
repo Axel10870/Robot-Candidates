@@ -17,6 +17,7 @@ public:
 private:
     bool aperturas[4]; // N, E, S, O
     CorrectionCentrado casillasVecinas;
+    Movements &robot;
 };
 
 #endif // APERTURAS_H
