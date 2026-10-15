@@ -10,17 +10,17 @@
   #define bluepin 6
   #define commonAnode true
   byte gammatable[256];
-  Adafruit_TCS34725 tcs= Adafruit_TCS34725(
-    TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+ //// Adafruit_TCS34725 tcs= Adafruit_TCS34725(
+  ////  TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
 
   //pins se definen despues
   //Car iniciar 4 motores, pines puestos en 0, se cambia en setup()
 Movements movements;
 
   //Sensor Ultrasonico, primer pin es el trigger y el segundo es el echo
-  UltraSonico sensorFrente(38, 39);//Frente
-  UltraSonico sensorIzquierda(36, 37);//Izquierda
-  UltraSonico sensorDerecha(40, 41);//Derecha
+  UltraSonico sensorFrente(25, 24);//Frente
+  UltraSonico sensorIzquierda(27, 26);//Izquierda
+  UltraSonico sensorDerecha(23, 22);//Derecha
 
   //variables
 //int t;??? dos tiempos??
@@ -29,7 +29,7 @@ double distanceIzquierda;
 double distanceDerecha;
 int detector= 4; //IR sensor
 bool PelotaenPosesion = false;
-int STAGE = 1; ///////////////////////////////Etapa del circuito////////////////////////////
+int STAGE = 0; ///////////////////////////////Etapa del circuito////////////////////////////
 bool Union = false; ///////UNION DE ETAPAS////////
 
 
@@ -52,11 +52,11 @@ int Traduccion_lectura; //Traducción de la lectura del color a un número para 
 
 void setup() {
   //Motores poner los pines de cada motor
-  //primer pin es ENA, segundo es In1 y tercero es In2
-  movements.motorFrontLeft(9, 22, 23); //Left Front Motor
-  movements.motorFrontRight(10, 26, 27); //Right Front Motor
-  movements.motorBackLeft(11, 30, 31); //Left Back Motor
-  movements.motorBackRight(12, 34, 35); //Right Back Motor
+  //primer pin es EN, segundo es In1 y tercero es In2
+  movements.motorFrontLeft(28, 31, 30); //Left Front Motor
+  movements.motorFrontRight(11, 35, 33); //Right Front Motor
+  movements.motorBackLeft(8, 9, 29); //Left Back Motor
+  movements.motorBackRight(10, 34, 32); //Right Back Motor
 
 //Especificar que son cada pin de todos los motores (Output, etc)
   movements.begin();
@@ -73,12 +73,12 @@ void setup() {
   pinMode(detector, INPUT);
 
   //color
-  if(tcs.begin()){ //checar si se conecto correctamente
-  }else{
-    Serial.println(
-      "No TCS34725 found ... check your conections");
-      while(1);
-  }
+  //// if(tcs.begin()){ //checar si se conecto correctamente
+  //// }else{
+  ////   Serial.println(
+  ////     "No TCS34725 found ... check your conections");
+  ////     while(1);
+  //// }
   pinMode(redpin, OUTPUT);//declarar los pines como output
   pinMode(bluepin, OUTPUT);
   pinMode(greenpin, OUTPUT);
@@ -100,6 +100,17 @@ void setup() {
 
 void loop() {
 //                       ULTRASÓNICOS | DETECCIÓN DE OBSTÁCULOS (PAREDES)
+  if(STAGE == 0){ ///PRUEBAS
+    distanceFrente = sensorFrente.getDistance();
+    distanceIzquierda = sensorIzquierda.getDistance();
+    distanceDerecha = sensorDerecha.getDistance();
+
+    Serial.println("Distancia frontal: " ); Serial.println(distanceFrente); Serial.println("cm | ");
+    Serial.println("Distancia derecha: " ); Serial.println(distanceFrente); Serial.println("cm | ");
+    Serial.println("Distancia izquierda: " ); Serial.println(distanceFrente); Serial.println("cm | ");
+
+    delay(500);
+  }
   if(STAGE == 1){ //           ETAPA 1 CIRCUITO B
     distanceFrente = sensorFrente.getDistance();
     distanceIzquierda = sensorIzquierda.getDistance();
@@ -323,12 +334,12 @@ void loop() {
 
     //////////////                                 COLORES
     float red, green, blue;
-    tcs.getRGB(&red, &green, &blue);
-    tcs.setInterrupt(false);
+    //// tcs.getRGB(&red, &green, &blue);
+    //// tcs.setInterrupt(false);
 
-    Serial.print("R:\t"); Serial.print(int(red));
-    Serial.print("\tG:\t"); Serial.print(int(green));
-    Serial.print("\tB:\t"); Serial.print(int(blue));
+    //// Serial.print("R:\t"); Serial.print(int(red));
+    //// Serial.print("\tG:\t"); Serial.print(int(green));
+    //// Serial.print("\tB:\t"); Serial.print(int(blue));
     Serial.print("\n");
     //*/
     analogWrite(redpin, gammatable[(int)constrain(red, 0, 255)]);
