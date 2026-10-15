@@ -36,9 +36,8 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
                     theRobot->derecha(100);
                 }else if(i==2){//si es izquierda, gira a la izquierda
                     theRobot->izquierda(100);
-                }else{//si es recto, avanza
-                    theRobot->avanzar(100);
-                }
+                }//despues de vueltas o si es enfrente, avanza a la casilla vecina que decidio ir
+                theRobot->avanzar(100);
                  dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
             }
             
