@@ -22,14 +22,14 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
         visited[nuevaFila][nuevaColumna] = true;
     }
     if(deadEnd[fila][columna]){ //si de donde viene no tiene continuacion, lo elimina de la lista de vecinos
-        vecinos[nuevaFila][nuevaColumna].aperturas[(direccion+2)%4] = false;//marca de donde viene como dead end/ no puede ir
+        vecinos[nuevaFila][nuevaColumna].setApertura((direccion + 2) % 4, false);//marca de donde viene como dead end/ no puede ir
     }
     //intenta ir a cada casilla vecina, en orden de preferencia, recto, derecha, izquierda, volver fuera del for para marcar que no hay nada de donde viene
     for (int i = 0; i < 3; i++) {
         //dentro del mapa
         if (nuevaFila >= 0 && nuevaFila < TAM && nuevaColumna >= 0 && nuevaColumna < TAM) {
             //si se puede ir a esa direccion
-            if (vecinos[nuevaFila][nuevaColumna].aperturas[(direccion + direccionMovimiento[i]) % 4]) {
+            if (vecinos[nuevaFila][nuevaColumna].getApertura((direccion + direccionMovimiento[i]) % 4)) {
                 dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
             }
             
@@ -38,7 +38,7 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     //en caso de que no haya salida hacia ninguna direccion que no sea volver, marca como dead end y vuelve a la casilla anterior
     deadEnd[nuevaFila][nuevaColumna] = true;
     if(!deadEnd[fila][columna]){//si de donde viene no es dead end entonces vuelve y marca que no puede ir a la casilla donde estaba
-        vecinos[fila][columna].aperturas[(direccion+2)%4] = false;//marca de donde viene como dead end/ no puede ir
+        vecinos[fila][columna].setApertura((direccion + 2) % 4, false);//marca de donde viene como dead end/ no puede ir
         
         dfs(nuevaFila, nuevaColumna, (direccion+2)%4); //vuelve a la casilla anterior
     }
