@@ -16,6 +16,7 @@ public:
     Aperturas aperturas;
 private:
     void dfs(int fila, int columna, int direccion);
+    Movements *theRobot;
     //para marcar movimiento a cada direccion, N=0, E=1, S=2, O=3
     const int direccionFila[4] = {-1, 0, 1, 0};
     const int direccionColumna[4] = {0, 1, 0, -1};

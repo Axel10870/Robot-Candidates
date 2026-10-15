@@ -1,10 +1,12 @@
 #include "backTracking.h"
 BackTracking::BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente, Movements &robot)
-    : aperturas(sensorIzquierda, sensorDerecha, sensorFrente) {
+    : aperturas(sensorIzquierda, sensorDerecha, sensorFrente),
+      theRobot(&robot) {
     memset(visited, false, sizeof(visited));
     memset(deadEnd, false, sizeof(deadEnd));
 }
 void BackTracking::solver(int fila, int columna,int direccion) {
+    //poner bool si se comple la meta si si fin
     if(true){
         return;
     }
@@ -30,7 +32,14 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
         if (nuevaFila >= 0 && nuevaFila < TAM && nuevaColumna >= 0 && nuevaColumna < TAM) {
             //si se puede ir a esa direccion
             if (vecinos[nuevaFila][nuevaColumna].getApertura((direccion + direccionMovimiento[i]) % 4)) {
-                dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
+                if(i==1){//si es derecha, gira a la derecha
+                    theRobot->derecha(100);
+                }else if(i==2){//si es izquierda, gira a la izquierda
+                    theRobot->izquierda(100);
+                }else{//si es recto, avanza
+                    theRobot->avanzar(100);
+                }
+                 dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
             }
             
         }
@@ -39,7 +48,9 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     deadEnd[nuevaFila][nuevaColumna] = true;
     if(!deadEnd[fila][columna]){//si de donde viene no es dead end entonces vuelve y marca que no puede ir a la casilla donde estaba
         vecinos[fila][columna].setApertura((direccion + 2) % 4, false);//marca de donde viene como dead end/ no puede ir
-        
+        theRobot->derecha(100); //gira a la derecha para volver a la casilla anterior
+        theRobot->derecha(100); //gira a la derecha para volver a la casilla anterior
+        theRobot->avanzar(100); //avanza a la casilla anterior
         dfs(nuevaFila, nuevaColumna, (direccion+2)%4); //vuelve a la casilla anterior
     }
 }
