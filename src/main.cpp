@@ -5,6 +5,7 @@
 #include "movements.h"
 #include "motor.h"
 #include "ultrasonico.h"
+#include "correctioncentrado.h"
 
 // -------------------- Color sensor --------------------
 #define redpin 3
@@ -27,6 +28,7 @@ float distanceFrente;
 float distanceIzquierda;
 float distanceDerecha;
 
+CorrectionCentrado correction;
 // Cambiar booleans para porbar cosas
 bool pruebaMotores = false;
 bool pruebaUltrasonico = true;
@@ -81,14 +83,17 @@ void setup() {
 
 
 void loop() {
-  /*
   Serial.println("PRUEBA MOTORES");
-    robot.derecha(100);
-    delay(3350);
-    robot.neutro();
-    delay(3000);
-    */
-  if (pruebaUltrasonico) {
+  correction.centrarYAvanzarCasilla(robot, sensorIzquierda, sensorDerecha, sensorFrente);
+  delay(3000);
+  robot.neutro();
+  delay(3000);
+  robot.derecha(100);
+  delay(6700);
+  robot.neutro();
+  delay(3000);
+    
+  if (false) {
     distanceFrente = sensorFrente.getDistance();
     distanceIzquierda = sensorIzquierda.getDistance();
     distanceDerecha = sensorDerecha.getDistance();

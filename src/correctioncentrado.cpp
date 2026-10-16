@@ -16,11 +16,15 @@ float CorrectionCentrado::getCorrection(UltraSonico &sensorIzquierda, UltraSonic
     }
     return 0;
 }
-void CorrectionCentrado::centrar(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha) {
+void CorrectionCentrado::centrarYAvanzarCasilla(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente) {
     //sumar/restar correccion a velocidad para centrarse, multiplicado por 5 para que sea mas notorio el cambio de velocidad
     float correction = getCorrection(sensorIzquierda, sensorDerecha);
+    float distanceFrente = sensorFrente.getDistance();
+    while((int)(distanceFrente)% 30 > 5.0f) {//si esta 5 cm de una casilla para, para hacer dfs a la siguiente(osea hasta moverse a otra casilla)
         movements.avanzarIzquierda(100+5*correction);
         movements.avanzarDerecha(100-5*correction); 
+    }
+    movements.neutro();
 }
 void CorrectionCentrado::detectarApertura(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente) {
     //detectar si hay apertura a los lados o al frente, para tomar decisiones de movimiento
@@ -41,8 +45,5 @@ bool CorrectionCentrado::isAperturaDer() {
 bool CorrectionCentrado::isAperturaFrente() {
     return aperturaFrente;
 }
-
-
-
 
 

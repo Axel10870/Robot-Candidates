@@ -12,7 +12,7 @@ public:
     CorrectionCentrado();
     float getCorrection(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha);
     void detectarApertura(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
-    void centrar(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha);
+    void centrarYAvanzarCasilla(Movements &movements, UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente);
     bool isAperturaIzq();
     bool isAperturaDer();
     bool isAperturaFrente();
