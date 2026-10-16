@@ -12,7 +12,7 @@ public:
     static constexpr int TAM = 40;
     bool visited[TAM][TAM];
     bool deadEnd[TAM][TAM];
-    Aperturas vecinos[TAM][TAM];
+    uint8_t vecinos[TAM][TAM];
     Aperturas aperturas;
 private:
     void dfs(int fila, int columna, int direccion);

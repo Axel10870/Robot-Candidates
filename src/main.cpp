@@ -3,44 +3,46 @@
 #include "Adafruit_TCS34725.h"
 #include "Ultrasonico.h"  
 #include "movements.h"
+#include "motor.h"
+#include "ultrasonico.h"
 
-  //color Sensor set
-  #define redpin 3
-  #define greenpin 5
-  #define bluepin 6
-  #define commonAnode true
-  byte gammatable[256];
-  Adafruit_TCS34725 tcs= Adafruit_TCS34725(
-    TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+// -------------------- Color sensor --------------------
+#define redpin 3
+#define greenpin 5
+#define bluepin 6
+#define commonAnode true
 
-  //pins se definen despues
-  //Car iniciar 4 motores, pines puestos en 0, se cambia en setup()
-Movements movements;
+byte gammatable[256];
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(
+    TCS34725_INTEGRATIONTIME_50MS,
+    TCS34725_GAIN_4X);
 
-  //Sensor Ultrasonico, primer pin es el trigger y el segundo es el echo
-  UltraSonico sensorFrente(38, 39);//Frente
-  UltraSonico sensorIzquierda(36, 37);//Izquierda
-  UltraSonico sensorDerecha(40, 41);//Derecha
+// -------------------- Robot --------------------
+Movements robot;
+UltraSonico sensorFrente(25, 24);   // Trigger, Echo - Frente
+UltraSonico sensorIzquierda(23, 22); // Trigger, Echo - Izquierda
+UltraSonico sensorDerecha(27, 26);  // Trigger, Echo - Derecha
 
-  //variables
-  //int speed;
-//int t;??? dos tiempos??
-double distanceFrente;
-double distanceIzquierda;
-double distanceDerecha;
-bool bloqueo = false;
-int detector= 4; //IR sensor
+float distanceFrente;
+float distanceIzquierda;
+float distanceDerecha;
+
+// Cambiar booleans para porbar cosas
+bool pruebaMotores = true;
+bool pruebaUltrasonico = false;
+bool pruebaColor = false;
+bool pruebaConjunta = false;
 
 void setup() {
   //Motores poner los pines de cada motor
   //primer pin es ENA, segundo es In1 y tercero es In2
-  movements.motorFrontLeft(9, 22, 23); //Left Front Motor
-  movements.motorFrontRight(10, 26, 27); //Right Front Motor
-  movements.motorBackLeft(11, 30, 31); //Left Back Motor
-  movements.motorBackRight(12, 34, 35); //Right Back Motor
+  robot.motorBackLeft(9, 29, 31);
+  robot.motorFrontLeft(8, 28, 30);
+  robot.motorBackRight(10, 32, 34);
+  robot.motorFrontRight(11, 33, 35);
 
 //Especificar que son cada pin de todos los motores (Output, etc)
-  movements.begin();
+  robot.begin();
 
   //empieza comunicacion serial
   Serial.begin(9600);
@@ -49,7 +51,7 @@ void setup() {
   sensorFrente.begin();
   sensorIzquierda.begin();
   sensorDerecha.begin();
-
+/*
    //infrarrojo (IR)
   pinMode(detector, INPUT);
 
@@ -74,10 +76,32 @@ void setup() {
       gammatable[i] = x;
     }
   }
+    */
 }
 
 
 void loop() {
+  Serial.println("PRUEBA MOTORES");
+    robot.derecha(100);
+    delay(3000);
+    robot.neutro();
+    delay(3000);
+  if (pruebaUltrasonico) {
+    distanceFrente = sensorFrente.getDistance();
+    distanceIzquierda = sensorIzquierda.getDistance();
+    distanceDerecha = sensorDerecha.getDistance();
+
+    Serial.print("FR:");
+    Serial.print(distanceFrente);
+    Serial.print("cm  IZ:");
+    Serial.print(distanceIzquierda);
+    Serial.print("cm  DE:");
+    Serial.print(distanceDerecha);
+    Serial.println("cm");
+
+    delay(500);
+  }
+  /*
   //Infrarrojo
   int valueIR = 0;
   valueIR = digitalRead(detector);
@@ -94,7 +118,7 @@ void loop() {
   Serial.print("\tG:\t"); Serial.print(int(green));
   Serial.print("\tB:\t"); Serial.print(int(blue));
   Serial.print("\n");
-  //*/
+  //
   analogWrite(redpin, gammatable[(int)red]);
   analogWrite(greenpin, gammatable[(int)green]);
   analogWrite(bluepin, gammatable[(int)blue]);
@@ -121,5 +145,5 @@ void loop() {
 
   if(distanceFrente<=5){ //Si hay 5 cm
     bool bloqueo = true;
-  }
+  }*/
 }

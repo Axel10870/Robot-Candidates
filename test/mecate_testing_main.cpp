@@ -26,15 +26,16 @@ float distanceIzquierda;
 float distanceDerecha;
 
 // Cambiar booleans para porbar cosas
-bool pruebaMotores = false;
-bool pruebaUltrasonico = true;
+bool pruebaMotores = true;
+bool pruebaUltrasonico = false;
 bool pruebaColor = false;
-bool pruebaConjunta = true;
+bool pruebaConjunta = false;
 
 void setup() {
   Serial.begin(9600);
 
   // Sensor de color
+  /*
   if (tcs.begin()) {
     Serial.println("TCS34725 OK");
   } else {
@@ -59,13 +60,18 @@ void setup() {
   pinMode(redpin, OUTPUT);
   pinMode(greenpin, OUTPUT);
   pinMode(bluepin, OUTPUT);
-
+*/
   // Motores del robot
-  robot.motorFrontLeft(11, 34, 32);
+  robot.motorBackLeft(9, 29, 31);
+  robot.motorFrontLeft(8, 28, 30);
+  robot.motorBackRight(10, 32, 34);
+  robot.motorFrontRight(11, 33, 35);
+  /*
+  robot.motorFrontLeft(11, 32, 34);
   robot.motorFrontRight(8, 30, 28);
   robot.motorBackLeft(10, 33, 35);
   robot.motorBackRight(9, 29, 31);
-
+*/
   robot.begin();
 
   // Sensores de distancia
@@ -78,18 +84,28 @@ void loop() {
   // -------------------- PRUEBA: MOTORES --------------------
   if (pruebaMotores) {
     Serial.println("PRUEBA MOTORES");
+    delay(2000);
+    robot.derecha(100);
+    delay(2500);
+    robot.neutro();
+    /*
     robot.avanzar(180);
-    delay(800);
+    delay(3000);
     robot.neutro();
-    delay(500);
+    delay(3000);
     robot.derecha(180);
-    delay(500);
+    delay(3000);
     robot.neutro();
-    delay(500);
+    delay(3000);
     robot.izquierda(180);
-    delay(500);
+    delay(3000);
     robot.neutro();
-    delay(500);
+    delay(3000);
+    robot.retroceder(180);
+    delay(3000);
+    robot.neutro();
+    delay(3000);
+    */
   }
 
   // -------------------- PRUEBA: ULTRASONICOS --------------------
@@ -110,6 +126,7 @@ void loop() {
   }
 
   // -------------------- PRUEBA: COLOR --------------------
+  /*
   else if (pruebaColor) {
     float red, green, blue;
     tcs.getRGB(&red, &green, &blue);
@@ -127,10 +144,11 @@ void loop() {
     analogWrite(bluepin, gammatable[(int)blue]);
 
     delay(200);
-  }
+  }*/
 
   // -------------------- PRUEBA CONJUNTA --------------------
   else {
+    /*
     float red, green, blue;
     tcs.getRGB(&red, &green, &blue);
     tcs.setInterrupt(true);
@@ -142,7 +160,7 @@ void loop() {
   Serial.print(" B:");
   Serial.print(int(blue));
   Serial.print("  |  ");
-
+*/
   distanceFrente = sensorFrente.getDistance();
   distanceIzquierda = sensorIzquierda.getDistance();
   distanceDerecha = sensorDerecha.getDistance();
@@ -174,11 +192,11 @@ void loop() {
   else {
     robot.avanzar(150);
   }
-
+/*
   analogWrite(redpin, gammatable[(int)red]);
   analogWrite(greenpin, gammatable[(int)green]);
   analogWrite(bluepin, gammatable[(int)blue]);
-
+*/
   delay(100);
 }
 }
