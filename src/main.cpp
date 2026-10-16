@@ -28,8 +28,8 @@ float distanceIzquierda;
 float distanceDerecha;
 
 // Cambiar booleans para porbar cosas
-bool pruebaMotores = true;
-bool pruebaUltrasonico = false;
+bool pruebaMotores = false;
+bool pruebaUltrasonico = true;
 bool pruebaColor = false;
 bool pruebaConjunta = false;
 
@@ -81,11 +81,13 @@ void setup() {
 
 
 void loop() {
+  /*
   Serial.println("PRUEBA MOTORES");
     robot.derecha(100);
-    delay(3000);
+    delay(3350);
     robot.neutro();
     delay(3000);
+    */
   if (pruebaUltrasonico) {
     distanceFrente = sensorFrente.getDistance();
     distanceIzquierda = sensorIzquierda.getDistance();
@@ -99,7 +101,32 @@ void loop() {
     Serial.print(distanceDerecha);
     Serial.println("cm");
 
-    delay(500);
+    delay(300);
+
+    if (distanceFrente < 22.0f && distanceDerecha > 12.0f) {
+    robot.derecha(100);
+    delay(3350);
+  }
+  else if (distanceFrente < 22.0f && distanceIzquierda > 12.0f) {
+    robot.izquierda(100);
+    delay(3350);
+  }
+  else if (distanceFrente < 22.0f && distanceIzquierda < 12.0f && distanceDerecha < 12.0f) {
+    robot.derecha(100);
+    delay(6700);
+    robot.neutro();
+    delay(250);
+  }
+  
+    robot.avanzar(100);
+    delay(3000);
+  
+/*
+  analogWrite(redpin, gammatable[(int)red]);
+  analogWrite(greenpin, gammatable[(int)green]);
+  analogWrite(bluepin, gammatable[(int)blue]);
+*/
+  delay(100);
   }
   /*
   //Infrarrojo
@@ -113,7 +140,7 @@ void loop() {
   float red, green, blue;
   tcs.getRGB(&red, &green, &blue);
   tcs.setInterrupt(true);
-  ///* para checar que valores lee (quitar primeras 2  lineas para comentar todo)
+  // para checar que valores lee (quitar primeras 2  lineas para comentar todo)
   Serial.print("R:\t"); Serial.print(int(red));
   Serial.print("\tG:\t"); Serial.print(int(green));
   Serial.print("\tB:\t"); Serial.print(int(blue));
