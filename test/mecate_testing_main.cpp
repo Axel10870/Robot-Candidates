@@ -17,9 +17,9 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(
 
 // -------------------- Robot --------------------
 Movements robot;
-UltraSonico sensorFrente(38, 39);   // Trigger, Echo - Frente
-UltraSonico sensorIzquierda(36, 37); // Trigger, Echo - Izquierda
-UltraSonico sensorDerecha(40, 41);  // Trigger, Echo - Derecha
+UltraSonico sensorFrente(25, 24);   // Trigger, Echo - Frente
+UltraSonico sensorIzquierda(23, 22); // Trigger, Echo - Izquierda
+UltraSonico sensorDerecha(27, 26);  // Trigger, Echo - Derecha
 
 float distanceFrente;
 float distanceIzquierda;
@@ -27,7 +27,7 @@ float distanceDerecha;
 
 // Cambiar booleans para porbar cosas
 bool pruebaMotores = false;
-bool pruebaUltrasonico = false;
+bool pruebaUltrasonico = true;
 bool pruebaColor = false;
 bool pruebaConjunta = true;
 
@@ -61,10 +61,10 @@ void setup() {
   pinMode(bluepin, OUTPUT);
 
   // Motores del robot
-  robot.motorFrontLeft(9, 22, 23);
-  robot.motorFrontRight(10, 26, 27);
-  robot.motorBackLeft(11, 30, 31);
-  robot.motorBackRight(12, 34, 35);
+  robot.motorFrontLeft(11, 34, 32);
+  robot.motorFrontRight(8, 30, 28);
+  robot.motorBackLeft(10, 33, 35);
+  robot.motorBackRight(9, 29, 31);
 
   robot.begin();
 
