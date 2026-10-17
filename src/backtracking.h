@@ -9,7 +9,7 @@ class BackTracking {
 public:
     BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDerecha, UltraSonico &sensorFrente, Movements &robot);
     void solver(int fila, int columna,int direccion);
-    static constexpr int TAM = 40;
+    static constexpr int TAM = 5; // Tamaño del laberinto
     bool visited[TAM][TAM];
     bool deadEnd[TAM][TAM];
     uint8_t vecinos[TAM][TAM];

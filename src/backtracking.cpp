@@ -22,23 +22,27 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     }
     //traduce a su nueva posicion en la matriz
     int nuevaFila, nuevaColumna;
-    if(!inicio){//si no es la primera casilla, no cambia posicion
+    if(!inicio){//si no es la primera casilla,  cambia posicion
         nuevaFila = fila + direccionFila[direccion];
         nuevaColumna = columna + direccionColumna[direccion];
-    }else{
+    }else{ //si  es la primera casilla, no  cambia posicion
         nuevaFila = fila;
         nuevaColumna = columna;
-        inicio=false;
     }
     if (nuevaFila < 0 || nuevaFila >= TAM || nuevaColumna < 0 || nuevaColumna >= TAM) {
         return;
     }
+    delay(200);
     if(!visited[nuevaFila][nuevaColumna]){ //en caso de no haber ido ahi nunca, lee sus aperturas y guarda en la matriz de vecinos
         aperturas.leerAperturas(direccion);
-        vecinos[fila][columna] = 0;
+        if(inicio){ //si es la primera casilla, marca que ya no es la primera
+            aperturas.setApertura(2,false); //marca que no puede ir hacia atras porque es la primera
+            inicio=false;
+        }
+        vecinos[nuevaFila][nuevaColumna] = 0;
         for (int i = 0; i < 4; ++i) {
             if (aperturas.getApertura(i)) {
-                vecinos[fila][columna] |= static_cast<uint8_t>(1U << i);
+                vecinos[nuevaFila][nuevaColumna] |= static_cast<uint8_t>(1U << i);
             }
         }
         visited[nuevaFila][nuevaColumna] = true;
@@ -59,6 +63,8 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
                     theRobot->izquierda(100);
                     delay(3350);
                 }//despues de vueltas o si es enfrente, avanza a la casilla vecina que decidio ir
+                theRobot->avanzar(150);
+                delay(1500);
                 centrarAvanzar.centrarYAvanzarCasilla(*theRobot, aperturas.sensorIzquierda, aperturas.sensorDerecha, aperturas.sensorFrente);
                  dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
             }
@@ -70,8 +76,10 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     if(!deadEnd[fila][columna]){//si de donde viene no es dead end entonces vuelve y marca que no puede ir a la casilla donde estaba
         vecinos[fila][columna] &= static_cast<uint8_t>(~(1U << ((direccion + 2) % 4)));//marca de donde viene como dead end/ no puede ir
         theRobot->derecha(100); //gira a la derecha para volver a la casilla anterior
-        theRobot->derecha(100); //gira a la derecha para volver a la casilla anterior
-        theRobot->avanzar(100); //avanza a la casilla anterior
+        delay(6700);
+        theRobot->avanzar(150);
+        delay(1000);
+        centrarAvanzar.centrarYAvanzarCasilla(*theRobot, aperturas.sensorIzquierda, aperturas.sensorDerecha, aperturas.sensorFrente);
         dfs(nuevaFila, nuevaColumna, (direccion+2)%4); //vuelve a la casilla anterior
     }
 }

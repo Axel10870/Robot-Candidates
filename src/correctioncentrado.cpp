@@ -20,9 +20,12 @@ void CorrectionCentrado::centrarYAvanzarCasilla(Movements &movements, UltraSonic
     //sumar/restar correccion a velocidad para centrarse, multiplicado por 5 para que sea mas notorio el cambio de velocidad
     float correction = getCorrection(sensorIzquierda, sensorDerecha);
     float distanceFrente = sensorFrente.getDistance();
-    while((int)(distanceFrente)% 30 > 5.0f) {//si esta 5 cm de una casilla para, para hacer dfs a la siguiente(osea hasta moverse a otra casilla)
-        movements.avanzarIzquierda(100+5*correction);
-        movements.avanzarDerecha(100-5*correction); 
+    while((int)(distanceFrente)% 30 > 5) {//si esta 5 cm de una casilla para, para hacer dfs a la siguiente(osea hasta moverse a otra casilla)
+        movements.avanzarIzquierda((int)(125-10.0*correction));
+        movements.avanzarDerecha((int)(125+10.0*correction)); 
+        delay(50);
+        correction = getCorrection(sensorIzquierda, sensorDerecha);
+        distanceFrente = sensorFrente.getDistance();
     }
     movements.neutro();
 }

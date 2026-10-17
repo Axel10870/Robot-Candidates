@@ -6,17 +6,22 @@
 #include "motor.h"
 #include "ultrasonico.h"
 #include "correctioncentrado.h"
+#include "backtracking.h"
 
 // -------------------- Color sensor --------------------
-#define redpin 3
-#define greenpin 5
-#define bluepin 6
+#define S0 36
+#define S1 37
+#define S2 39
+#define S3 38
+#define sensorOut 40
 #define commonAnode true
 
-byte gammatable[256];
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(
-    TCS34725_INTEGRATIONTIME_50MS,
-    TCS34725_GAIN_4X);
+int redPW = 0;
+int greenPW = 0;
+int bluePW = 0;
+int redPin = 5;
+int greenPin = 3;
+int bluePin = 6;
 
 // -------------------- Robot --------------------
 Movements robot;
@@ -31,10 +36,15 @@ float distanceDerecha;
 CorrectionCentrado correction;
 // Cambiar booleans para porbar cosas
 bool pruebaMotores = false;
-bool pruebaUltrasonico = true;
+bool pruebaUltrasonico = false;
 bool pruebaColor = false;
 bool pruebaConjunta = false;
 
+int getRedPW();
+int getGreenPW();
+int getBluePW();
+
+BackTracking laberintoSolver(sensorIzquierda, sensorDerecha, sensorFrente, robot);
 void setup() {
   //Motores poner los pines de cada motor
   //primer pin es ENA, segundo es In1 y tercero es In2
@@ -53,6 +63,24 @@ void setup() {
   sensorFrente.begin();
   sensorIzquierda.begin();
   sensorDerecha.begin();
+  
+  // Set S0 - S3 as outputs
+	pinMode(S0, OUTPUT);
+	pinMode(S1, OUTPUT);
+	pinMode(S2, OUTPUT);
+	pinMode(S3, OUTPUT);
+
+	// Set Pulse Width scaling to 20%
+	digitalWrite(S0,HIGH);
+	digitalWrite(S1,LOW);
+
+	// Set Sensor output as input
+	pinMode(sensorOut, INPUT);
+
+  pinMode(redPin, OUTPUT);//declarar los pines como output
+  pinMode(bluePin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+
 /*
    //infrarrojo (IR)
   pinMode(detector, INPUT);
@@ -83,17 +111,58 @@ void setup() {
 
 
 void loop() {
+  
+  laberintoSolver.solver(4, 0, 0); //comienza a resolver el laberinto desde la casilla (5,0) mirando hacia el norte (direccion 0)
+  robot.neutro();
+  delay(3000);
+  robot.retroceder(180);
+  delay(3000);
+  /*
+  robot.derecha(100);
+  delay(13400);
+  robot.neutro();
+  delay(3000);
+  */
+  if(pruebaMotores) {
+    Serial.println("PRUEBA MOTORES");
+    correction.centrarYAvanzarCasilla(robot, sensorIzquierda, sensorDerecha, sensorFrente);
+    delay(10000);
+    robot.neutro();
+    delay(3000);
+    /*
+    robot.derecha(100);
+    delay(6700);
+    robot.neutro();
+    delay(3000);
   Serial.println("PRUEBA MOTORES");
   correction.centrarYAvanzarCasilla(robot, sensorIzquierda, sensorDerecha, sensorFrente);
-  delay(3000);
+  delay(10000);
   robot.neutro();
   delay(3000);
   robot.derecha(100);
   delay(6700);
   robot.neutro();
   delay(3000);
-    
-  if (false) {
+    */
+  }
+   if(pruebaColor){
+   redPW = getRedPW();
+  delay(200);
+  greenPW = getGreenPW();
+  delay(200);
+  bluePW = getBluePW();
+  delay(200);
+  Serial.print("Red PW = ");
+	Serial.print(redPW);
+	Serial.print(" - Green PW = ");
+	Serial.print(greenPW);
+	Serial.print(" - Blue PW = ");
+	Serial.println(bluePW);
+  analogWrite(redPin, redPW);
+  analogWrite(greenPin, greenPW);
+  analogWrite(bluePin, bluePW);
+   }
+  if (pruebaUltrasonico) {
     distanceFrente = sensorFrente.getDistance();
     distanceIzquierda = sensorIzquierda.getDistance();
     distanceDerecha = sensorDerecha.getDistance();
@@ -107,7 +176,7 @@ void loop() {
     Serial.println("cm");
 
     delay(300);
-
+    /*
     if (distanceFrente < 22.0f && distanceDerecha > 12.0f) {
     robot.derecha(100);
     delay(3350);
@@ -125,12 +194,7 @@ void loop() {
   
     robot.avanzar(100);
     delay(3000);
-  
-/*
-  analogWrite(redpin, gammatable[(int)red]);
-  analogWrite(greenpin, gammatable[(int)green]);
-  analogWrite(bluepin, gammatable[(int)blue]);
-*/
+  */
   delay(100);
   }
   /*
@@ -140,42 +204,43 @@ void loop() {
   if(valueIR == HIGH){ //checa si hay obstaaculo
     Serial.println("Detectado obstaculo");//cambiar a un boolean
   }
+  */
+}
+// Function to read Red Pulse Widths
+int getRedPW() {
+	// Set sensor to read Red only
+	digitalWrite(S2,LOW);
+	digitalWrite(S3,LOW);
+	// Define integer to represent Pulse Width
+	int PW;
+	// Read the output Pulse Width
+	PW = pulseIn(sensorOut, LOW);
+	// Return the value
+	return PW;
+}
 
-  //////////////                                 COLORES
-  float red, green, blue;
-  tcs.getRGB(&red, &green, &blue);
-  tcs.setInterrupt(true);
-  // para checar que valores lee (quitar primeras 2  lineas para comentar todo)
-  Serial.print("R:\t"); Serial.print(int(red));
-  Serial.print("\tG:\t"); Serial.print(int(green));
-  Serial.print("\tB:\t"); Serial.print(int(blue));
-  Serial.print("\n");
-  //
-  analogWrite(redpin, gammatable[(int)red]);
-  analogWrite(greenpin, gammatable[(int)green]);
-  analogWrite(bluepin, gammatable[(int)blue]);
-  
+// Function to read Green Pulse Widths
+int getGreenPW() {
+	// Set sensor to read Green only
+	digitalWrite(S2,HIGH);
+	digitalWrite(S3,HIGH);
+	// Define integer to represent Pulse Width
+	int PW;
+	// Read the output Pulse Width
+	PW = pulseIn(sensorOut, LOW);
+	// Return the value
+	return PW;
+}
 
-  if(distanceFrente<=5){ //Si hay 5 cm o menos
-    bool bloqueo = true;
-  }
-
-  if(bloqueo == true){
-    Serial.println("Obstaculo detectado");
-    movements.freno();
-    delay(1000);
-    movements.neutro();
-  }
-  else{
-    movements.avanzar(100);
-  }
-
-  //Ultrasonic medir distancia
-  distanceFrente = sensorFrente.getDistance();
-  distanceIzquierda = sensorIzquierda.getDistance();  
-  distanceDerecha = sensorDerecha.getDistance();
-
-  if(distanceFrente<=5){ //Si hay 5 cm
-    bool bloqueo = true;
-  }*/
+// Function to read Blue Pulse Widths
+int getBluePW() {
+	// Set sensor to read Blue only
+	digitalWrite(S2,LOW);
+	digitalWrite(S3,HIGH);
+	// Define integer to represent Pulse Width
+	int PW;
+	// Read the output Pulse Width
+	PW = pulseIn(sensorOut, LOW);
+	// Return the value
+	return PW;
 }
