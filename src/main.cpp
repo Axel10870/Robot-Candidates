@@ -53,6 +53,9 @@ bool valueIR = LOW;
 String Rosa; //Dirección
 bool bloqueoIR;
 bool Procesosalida = false; //Para que no se quede en un loop infinito de buscar la salida
+bool Volteando = false; 
+bool Probando = false; 
+bool limite = false; 
 
 //STAGE 3
 String Color; //Color detectado
@@ -143,7 +146,7 @@ void loop() {
       bloqueolateralder = false;
     }
 
-    if(bloqueofrontal == false && bloqueolateralizq == false && PelotaenPosesion == true){
+    if(bloqueofrontal == false && bloqueolateralizq == false){ // && Pelota_en_Posesion == true
       movements.avanzar(120);
       delay(1300);
       Serial.println("Salida encontrada! :D");
@@ -160,38 +163,44 @@ void loop() {
       Union = true; 
     }
 
-    else if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
-      movements.avanzar(120);
-      delay(800);
-      Serial.println("Camino derecho detectado. Posible pelota!");
-      movements.freno();
-      delay(200);
-      movements.neutro();
-      movements.derecha(110);
-      delay(3250);
-      movements.freno();
-      delay(200);
-      movements.neutro();
-      movements.avanzar(120);
-      delay(3000);
-      movements.neutro();
-    }
+    //                  LA GARRA NO FUNCIONA. IGNORAREMOS LA PELOTA
 
-    else if(distanceFrente<=30 && bloqueolateralizq == true && bloqueolateralder == true && PelotaenPosesion == false){
-      Serial.println("Pelota encontrada!");
-      movements.avanzar(120);
-      delay(1300);
-      movements.neutro();
-      garra.write(110); // Cierra la garra para agarrar la pelota
-      delay(500); // Espera un segundo para asegurar que la garra se cierre
-      PelotaenPosesion = true;
-      movements.retroceder(120);
-      delay(500);
-      movements.neutro();
-      movements.derecha(110);
-      delay(6500);
-      movements.neutro();
-    }
+    //else if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
+    //  movements.avanzar(120);
+    //  delay(800);
+    //  Serial.println("Camino derecho detectado. Posible pelota!");
+    //  movements.freno();
+    //  delay(200);
+    //  movements.neutro();
+    //  movements.derecha(110);
+    //  delay(3250);
+    //  movements.freno();
+    //  delay(200);
+    //  movements.neutro();
+    //  movements.avanzar(120);
+    //  delay(3000);
+    //  movements.neutro();
+    //}
+
+    //else if(distanceFrente<=30 && bloqueolateralizq == true && bloqueolateralder == true && PelotaenPosesion == false){
+      //Serial.println("Pelota encontrada!");
+      //movements.avanzar(120);
+      //delay(1300);
+      //movements.neutro();
+      //garra.write(110); // Cierra la garra para agarrar la pelota
+      //delay(500); // Espera un segundo para asegurar que la garra se cierre
+      //PelotaenPosesion = true;
+      //movements.retroceder(120);
+      //delay(500);
+      //movements.neutro();
+      //movements.derecha(110);
+      //delay(6500);
+      //movements.neutro();
+      //movements.avanzar(120);
+      //delay(1500);
+      //movements.derecha(120);
+      //delay(3250);
+    //}
 
     else if(bloqueofrontal == true){
       Serial.println("Obstaculo físico detectado");
@@ -206,7 +215,7 @@ void loop() {
     }
     else{
       movements.avanzar(120);
-      delay(300);
+      delay(2000);                //Avanzar una casilla
     }
   }
 
@@ -231,6 +240,7 @@ void loop() {
     else{
       bloqueofrontal = false;
     }
+
     distanceIzquierda = sensorIzquierda.getDistance();
     if(distanceIzquierda<=5){ //Si hay 5 cm o menos
       bloqueolateralizq = true;
@@ -238,6 +248,7 @@ void loop() {
     else{
       bloqueolateralizq = false;
     }
+
     //Infrarrojo
     valueIR = digitalRead(detector);
     if(valueIR == HIGH){ //checa si hay obstaaculo
@@ -253,20 +264,48 @@ void loop() {
     if(Rosa == "Norte" && bloqueofrontal == true && bloqueoIR == false){         //DAR LA VUELTA PARA DEVOLVERSE
       Serial.println("Momento de encontrar la puerta de salida!");
       Procesosalida = true;
-      movements.izquierda(120);
+      movements.derecha(120);
       delay(3250);
       movements.neutro();           /// QUEDAR VOLTEANDO AL ESTE
       Rosa = "Este";
-      
     }
-    else if(Rosa == "Este" && bloqueofrontal == true){         //DAR LA VUELTA PARA DEVOLVERSE
+    else if(Rosa == "Este" && bloqueofrontal == true && Volteando == true){         //DAR LA VUELTA PARA DEVOLVERSE
       movements.izquierda(110);
-      delay(3250);
+      delay(6500);
       movements.neutro();
       Rosa = "Oeste";
       delay(200);
+      Volteando = false;
     }
-    else if(Rosa == "Este" && bloqueofrontal == false && Procesosalida == false){
+    else if(Procesosalida == true && Rosa == "Este" && bloqueolateralizq == false){
+      delay(1200);
+      movements.izquierda(110);
+      delay(3250);
+      movements.neutro();
+      Rosa = "Norte";
+      Serial.println("Salida encontrada! :D");
+      movements.avanzar(120);
+      delay(4000);
+      movements.neutro();
+      STAGE = 3; //Cambio de etapa
+      Union = true;
+    }
+    else if(Rosa == "Este" && Procesosalida == false){
+      if(bloqueofrontal == false){
+        movements.avanzar(120);
+        delay(3000);
+        movements.neutro();
+        distanceFrente = sensorFrente.getDistance();
+        if(distanceFrente<=5){ //Si hay 5 cm o menos
+          limite = true;
+        }
+        else{
+          limite = false;
+        }
+      }
+      if(limite == true){
+        Volteando = true;
+      }
       movements.izquierda(110);
       delay(3250);
       movements.neutro();
@@ -290,25 +329,10 @@ void loop() {
       delay(3250);
       movements.neutro();
       Rosa = "Este";
-      movements.avanzar(120);
-      delay(3000);//                                 <<<==== 16 CENTIMETROS
-      movements.neutro();
+      Probando = true;
     }
-    else if(Procesosalida == true && Rosa == "Este" && bloqueolateralizq == false){
-      delay(200);
-      movements.izquierda(110);
-      delay(3250);
-      movements.neutro();
-      Rosa = "Norte";
-      Serial.println("Salida encontrada! :D");
-      movements.avanzar(120);
-      delay(4000);
-      movements.neutro();
-      STAGE = 3; //Cambio de etapa
-      Union = true;
-    }
-    else if(Rosa == "Norte" && bloqueoIR == false && bloqueofrontal == false){ // Avanzar normal
-      movements.avanzar(120);
+    else if(bloqueoIR == false && bloqueofrontal == false){ // Avanzar normal
+      movements.avanzar(90);
     }
     
   }
