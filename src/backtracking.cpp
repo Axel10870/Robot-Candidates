@@ -4,10 +4,11 @@ BackTracking::BackTracking(UltraSonico &sensorIzquierda, UltraSonico &sensorDere
       theRobot(&robot) {
     memset(visited, false, sizeof(visited));
     memset(deadEnd, false, sizeof(deadEnd));
+    inicio=true;
 }
 void BackTracking::solver(int fila, int columna,int direccion) {
     //poner bool si se comple la meta si si fin
-    if(true){
+    if(false){
         return;
     }
     else{
@@ -20,8 +21,15 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
         return;
     }
     //traduce a su nueva posicion en la matriz
-    int nuevaFila = fila + direccionFila[direccion];
-    int nuevaColumna = columna + direccionColumna[direccion];
+    int nuevaFila, nuevaColumna;
+    if(!inicio){//si no es la primera casilla, no cambia posicion
+        nuevaFila = fila + direccionFila[direccion];
+        nuevaColumna = columna + direccionColumna[direccion];
+    }else{
+        nuevaFila = fila;
+        nuevaColumna = columna;
+        inicio=false;
+    }
     if (nuevaFila < 0 || nuevaFila >= TAM || nuevaColumna < 0 || nuevaColumna >= TAM) {
         return;
     }
@@ -51,7 +59,7 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
                     theRobot->izquierda(100);
                     delay(3350);
                 }//despues de vueltas o si es enfrente, avanza a la casilla vecina que decidio ir
-                theRobot->avanzar(100);
+                centrarAvanzar.centrarYAvanzarCasilla(*theRobot, aperturas.sensorIzquierda, aperturas.sensorDerecha, aperturas.sensorFrente);
                  dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
             }
             

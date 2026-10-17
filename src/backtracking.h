@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include "Aperturas.h"
 #include "Movements.h"
-
+#include "correctioncentrado.h"
 // Your header file content here
 class BackTracking {
 public:
@@ -14,6 +14,8 @@ public:
     bool deadEnd[TAM][TAM];
     uint8_t vecinos[TAM][TAM];
     Aperturas aperturas;
+    bool inicio;
+    CorrectionCentrado centrarAvanzar;
 private:
     void dfs(int fila, int columna, int direccion);
     Movements *theRobot;
