@@ -37,7 +37,7 @@ double distanceIzquierda;
 double distanceDerecha;
 int detector= 49; //IR sensor
 bool PelotaenPosesion = false;
-int STAGE = 3; ///////////////////////////////Etapa del circuito////////////////////////////
+int STAGE = 1; ///////////////////////////////Etapa del circuito////////////////////////////
 bool Union = false; ///////UNION DE ETAPAS////////
 Servo garra;
 
@@ -97,8 +97,11 @@ void setup() {
   digitalWrite(S0, HIGH);
   digitalWrite(S1, LOW);
 
-  movements.avanzar(100); // Avanza al inicio para no confundirse 
-  delay(1000);
+  Serial.println("Iniciando robot...");
+  delay(5000); // Esperar un segundo para estabilizar el sensor
+
+  movements.avanzar(200); // Avanza al inicio para no confundirse 
+  delay(5500);
 }
 
 
@@ -110,8 +113,8 @@ void loop() {
     distanceDerecha = sensorDerecha.getDistance();
 
     Serial.println("Distancia frontal: " ); Serial.println(distanceFrente); Serial.println("cm | ");
-    Serial.println("Distancia derecha: " ); Serial.println(distanceFrente); Serial.println("cm | ");
-    Serial.println("Distancia izquierda: " ); Serial.println(distanceFrente); Serial.println("cm | ");
+    Serial.println("Distancia derecha: " ); Serial.println(distanceDerecha); Serial.println("cm | ");
+    Serial.println("Distancia izquierda: " ); Serial.println(distanceIzquierda); Serial.println("cm | ");
 
     delay(500);
   }
@@ -141,16 +144,16 @@ void loop() {
     }
 
     if(bloqueofrontal == false && bloqueolateralizq == false && PelotaenPosesion == true){
-      movements.avanzar(100);
+      movements.avanzar(120);
       delay(1300);
       Serial.println("Salida encontrada! :D");
       movements.freno();
       delay(200);
       movements.neutro();
-      movements.izquierda(100);
-      delay(3350);
+      movements.izquierda(110);
+      delay(3250);
       movements.freno();
-      movements.avanzar(100);
+      movements.avanzar(110);
       delay(4000);
       movements.neutro();
       STAGE = 2; //Cambio de etapa
@@ -158,54 +161,58 @@ void loop() {
     }
 
     else if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
-      movements.avanzar(100);
-      delay(1300);
+      movements.avanzar(120);
+      delay(800);
       Serial.println("Camino derecho detectado. Posible pelota!");
       movements.freno();
       delay(200);
       movements.neutro();
-      movements.derecha(100);
-      delay(3350);
+      movements.derecha(110);
+      delay(3250);
       movements.freno();
       delay(200);
       movements.neutro();
-      movements.avanzar(100);
-      delay(1500);
+      movements.avanzar(120);
+      delay(3000);
       movements.neutro();
     }
 
     else if(distanceFrente<=30 && bloqueolateralizq == true && bloqueolateralder == true && PelotaenPosesion == false){
       Serial.println("Pelota encontrada!");
-      movements.avanzar(100);
-      delay(1000);
+      movements.avanzar(120);
+      delay(1300);
       movements.neutro();
       garra.write(110); // Cierra la garra para agarrar la pelota
+      delay(500); // Espera un segundo para asegurar que la garra se cierre
       PelotaenPosesion = true;
-      movements.retroceder(100);
-      delay(2500);
+      movements.retroceder(120);
+      delay(500);
       movements.neutro();
-      movements.derecha(100);
-      delay(3350);
+      movements.derecha(110);
+      delay(6500);
       movements.neutro();
     }
 
-    if(bloqueofrontal == true){
+    else if(bloqueofrontal == true){
       Serial.println("Obstaculo físico detectado");
       movements.freno();
       delay(200);
+      movements.retroceder(120);
+      delay(300);
       movements.neutro();
-      movements.derecha(100);
-      delay(3350);
+      movements.derecha(110);
+      delay(3250);
       movements.neutro();
     }
     else{
-      movements.avanzar(100);
+      movements.avanzar(120);
+      delay(300);
     }
   }
 
 
   if (STAGE == 2 && Union == true){ //           CAMBIO ETAPA 1-2 Circuito B
-    movements.avanzar(100);
+    movements.avanzar(120);
     delay(2500);
     movements.neutro();
     Union = false;
@@ -246,29 +253,29 @@ void loop() {
     if(Rosa == "Norte" && bloqueofrontal == true && bloqueoIR == false){         //DAR LA VUELTA PARA DEVOLVERSE
       Serial.println("Momento de encontrar la puerta de salida!");
       Procesosalida = true;
-      movements.izquierda(100);
-      delay(3350);
+      movements.izquierda(120);
+      delay(3250);
       movements.neutro();           /// QUEDAR VOLTEANDO AL ESTE
       Rosa = "Este";
       
     }
     else if(Rosa == "Este" && bloqueofrontal == true){         //DAR LA VUELTA PARA DEVOLVERSE
-      movements.izquierda(100);
-      delay(3350);
+      movements.izquierda(110);
+      delay(3250);
       movements.neutro();
       Rosa = "Oeste";
       delay(200);
     }
     else if(Rosa == "Este" && bloqueofrontal == false && Procesosalida == false){
-      movements.izquierda(100);
-      delay(3350);
+      movements.izquierda(110);
+      delay(3250);
       movements.neutro();
       Rosa = "Norte";
       delay(200);
     }
     else if(Rosa == "Oeste" && bloqueofrontal == true){             //VOLTEAR AL FRENTE PARA CONTINUAR
-      movements.derecha(100);
-      delay(3350);
+      movements.derecha(110);
+      delay(3250);
       movements.neutro();
       Rosa = "Norte";
       delay(200);
@@ -276,32 +283,32 @@ void loop() {
     else if(Rosa == "Norte" && bloqueoIR == true && Procesosalida == false){           // DETECTAR BARRERA IR Y SEGUIR BUSCANDO
       movements.freno();
       delay(200);
-      movements.retroceder(100);
+      movements.retroceder(120);
       delay(1200);
       movements.neutro();
-      movements.derecha(100);
-      delay(3350);
+      movements.derecha(110);
+      delay(3250);
       movements.neutro();
       Rosa = "Este";
-      movements.avanzar(100);
+      movements.avanzar(120);
       delay(3000);//                                 <<<==== 16 CENTIMETROS
       movements.neutro();
     }
     else if(Procesosalida == true && Rosa == "Este" && bloqueolateralizq == false){
       delay(200);
-      movements.izquierda(100);
-      delay(3350);
+      movements.izquierda(110);
+      delay(3250);
       movements.neutro();
       Rosa = "Norte";
       Serial.println("Salida encontrada! :D");
-      movements.avanzar(100);
+      movements.avanzar(120);
       delay(4000);
       movements.neutro();
       STAGE = 3; //Cambio de etapa
       Union = true;
     }
     else if(Rosa == "Norte" && bloqueoIR == false && bloqueofrontal == false){ // Avanzar normal
-      movements.avanzar(100);
+      movements.avanzar(120);
     }
     
   }
@@ -309,7 +316,7 @@ void loop() {
 
 
   if(STAGE == 3 && Union == true){ //           CAMBIO ETAPA 2-3 Circuito B
-    movements.avanzar(100);
+    movements.avanzar(120);
     delay(3000);
     movements.neutro();
     Union = false;
@@ -418,19 +425,19 @@ void loop() {
       delay(2000);
     }
     else if(Traduccion_lectura < direccion){
-      movements.izquierda(100);
-      delay(3350);
+      movements.izquierda(110);
+      delay(3250);
       movements.neutro();
       direccion--;
     }
     else if(Traduccion_lectura > direccion){
-      movements.derecha(100);
-      delay(3350);
+      movements.derecha(110);
+      delay(3250);
       movements.neutro();
       direccion++;
     }
     else if(Traduccion_lectura == direccion){
-      movements.avanzar(100);
+      movements.avanzar(120);
       delay(4000);//                                <<<==== Ajustar a una casilla
       movements.neutro();
     }
