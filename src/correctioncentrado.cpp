@@ -11,8 +11,12 @@ float CorrectionCentrado::getCorrection(UltraSonico &sensorIzquierda, UltraSonic
     distIzq = sensorIzquierda.getDistance();
     distDer = sensorDerecha.getDistance();
     //en caso de que tengan pared y su deferencia sea mayor a 1 cm, se devuelve la diferencia para corregir el movimiento
-    if (distIzq < 8.0 && distDer < 8.0 && (distIzq-distDer > 1.0||distDer-distIzq > 1.0)) {
+    if (distIzq < 8.0 && distDer < 8.0) {
         return distIzq - distDer;
+    }else if(distIzq<4.0){
+        return -(4-distIzq);
+    } else if (distDer<4.0){
+        return 4-distDer;
     }
     return 0;
 }
@@ -20,12 +24,18 @@ void CorrectionCentrado::centrarYAvanzarCasilla(Movements &movements, UltraSonic
     //sumar/restar correccion a velocidad para centrarse, multiplicado por 5 para que sea mas notorio el cambio de velocidad
     float correction = getCorrection(sensorIzquierda, sensorDerecha);
     float distanceFrente = sensorFrente.getDistance();
-    while((int)(distanceFrente)% 30 > 5) {//si esta 5 cm de una casilla para, para hacer dfs a la siguiente(osea hasta moverse a otra casilla)
+    float n = 5.5;
+    bool yaCambio = false;
+    while((int)(distanceFrente)% 30 > n) {//si esta 5 cm de una casilla para, para hacer dfs a la siguiente(osea hasta moverse a otra casilla)
         movements.avanzarIzquierda((int)(125-10.0*correction));
         movements.avanzarDerecha((int)(125+10.0*correction)); 
         delay(50);
         correction = getCorrection(sensorIzquierda, sensorDerecha);
         distanceFrente = sensorFrente.getDistance();
+        if(distanceFrente<=30 && !yaCambio){
+            n-=1.5;
+            yaCambio=true;
+        }
     }
     movements.neutro();
 }

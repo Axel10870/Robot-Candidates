@@ -111,18 +111,14 @@ void setup() {
 
 
 void loop() {
+
+  laberintoSolver.solver(5, 1, 0); //comienza a resolver el laberinto desde la casilla (5,0) mirando hacia el norte (direccion 0)
+
+  robot.retroceder(100);
+  delay(2000);
+  robot.neutro();
+  delay(3000);
   
-  laberintoSolver.solver(4, 0, 0); //comienza a resolver el laberinto desde la casilla (5,0) mirando hacia el norte (direccion 0)
-  robot.neutro();
-  delay(3000);
-  robot.retroceder(180);
-  delay(3000);
-  /*
-  robot.derecha(100);
-  delay(13400);
-  robot.neutro();
-  delay(3000);
-  */
   if(pruebaMotores) {
     Serial.println("PRUEBA MOTORES");
     correction.centrarYAvanzarCasilla(robot, sensorIzquierda, sensorDerecha, sensorFrente);

@@ -52,33 +52,64 @@ void BackTracking::dfs(int fila, int columna, int direccion) {
     }
     //intenta ir a cada casilla vecina, en orden de preferencia, recto, derecha, izquierda, volver fuera del for para marcar que no hay nada de donde viene
     for (int i = 0; i < 3; i++) {
-        //dentro del mapa
-        if (nuevaFila >= 0 && nuevaFila < TAM && nuevaColumna >= 0 && nuevaColumna < TAM) {
-            //si se puede ir a esa direccion
-            if (vecinos[nuevaFila][nuevaColumna] & (1U << ((direccion + direccionMovimiento[i]) % 4))) {
-                if(i==1){//si es derecha, gira a la derecha
-                    theRobot->derecha(100);
-                    delay(3350);
-                }else if(i==2){//si es izquierda, gira a la izquierda
-                    theRobot->izquierda(100);
-                    delay(3350);
-                }//despues de vueltas o si es enfrente, avanza a la casilla vecina que decidio ir
-                theRobot->avanzar(150);
-                delay(1500);
-                centrarAvanzar.centrarYAvanzarCasilla(*theRobot, aperturas.sensorIzquierda, aperturas.sensorDerecha, aperturas.sensorFrente);
-                 dfs(nuevaFila, nuevaColumna, ((direccion+direccionMovimiento[i]) % 4));
-            }
-            
+        const int direccionDestino = (direccion + direccionMovimiento[i]) % 4;
+        const int filaDestino = nuevaFila + direccionFila[direccionDestino];
+        const int columnaDestino = nuevaColumna + direccionColumna[direccionDestino];
+        const uint8_t mascara = static_cast<uint8_t>(1U << direccionDestino);
+
+        if ((vecinos[nuevaFila][nuevaColumna] & mascara) == 0 ||
+            filaDestino < 0 || filaDestino >= TAM ||
+            columnaDestino < 0 || columnaDestino >= TAM ||
+            visited[filaDestino][columnaDestino]) {
+            continue;
         }
+
+        if(i==1){//si es derecha, gira a la derecha
+            theRobot->retroceder(100);
+            delay(400);
+            theRobot->derecha(100);
+            delay(1900);
+            theRobot->retroceder(100);
+            delay(400);
+            theRobot->derecha(100);
+            delay(1900);
+        }else if(i==2){//si es izquierda, gira a la izquierda
+            theRobot->retroceder(100);
+            delay(400);
+            theRobot->izquierda(100);
+            delay(1900);
+            theRobot->retroceder(100);
+            delay(400);
+            theRobot->izquierda(100);
+            delay(1900);
+        }//despues de vueltas o si es enfrente, avanza a la casilla vecina que decidio ir
+        theRobot->avanzar(150);
+        delay(1500);
+        centrarAvanzar.centrarYAvanzarCasilla(*theRobot, aperturas.sensorIzquierda, aperturas.sensorDerecha, aperturas.sensorFrente);
+        dfs(nuevaFila, nuevaColumna, direccionDestino);
     }
     //en caso de que no haya salida hacia ninguna direccion que no sea volver, marca como dead end y vuelve a la casilla anterior
     deadEnd[nuevaFila][nuevaColumna] = true;
     if(!deadEnd[fila][columna]){//si de donde viene no es dead end entonces vuelve y marca que no puede ir a la casilla donde estaba
-        vecinos[fila][columna] &= static_cast<uint8_t>(~(1U << ((direccion + 2) % 4)));//marca de donde viene como dead end/ no puede ir
-        theRobot->derecha(100); //gira a la derecha para volver a la casilla anterior
-        delay(6700);
+        vecinos[fila][columna] &= static_cast<uint8_t>(~(1U << ((direccion ) )));//marca de donde viene como dead end/ no puede ir
+        theRobot->derecha(100); //gira 90 grados hacia la derecha
+        delay(3350);
+        theRobot->neutro();
+        delay(250);
+        theRobot->derecha(100); //completa el giro de 180 grados
+        delay(1625);
+         theRobot->avanzar(100);
+        delay(250);
+        theRobot->derecha(100); //completa el giro de 180 grados
+        delay(1625);
+        theRobot->avanzar(100);
+        delay(250);
+        theRobot->derecha(100);
+        delay(1750);//para las paredes que pega
+        theRobot->neutro();
+        delay(250);
         theRobot->avanzar(150);
-        delay(1000);
+        delay(1500);
         centrarAvanzar.centrarYAvanzarCasilla(*theRobot, aperturas.sensorIzquierda, aperturas.sensorDerecha, aperturas.sensorFrente);
         dfs(nuevaFila, nuevaColumna, (direccion+2)%4); //vuelve a la casilla anterior
     }
