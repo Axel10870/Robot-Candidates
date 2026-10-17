@@ -1,17 +1,25 @@
 #include <Arduino.h>
 #include "Wire.h"
-#include "Adafruit_TCS34725.h"
 #include "Ultrasonico.h"  
 #include "movements.h"
+#include "Servo.h"
+#include <SPI.h>
 
   //color Sensor set
-  #define redpin 3
-  #define greenpin 5
+  #define redpin 5
+  #define greenpin 3
   #define bluepin 6
   #define commonAnode true
-  byte gammatable[256];
- //// Adafruit_TCS34725 tcs= Adafruit_TCS34725(
-  ////  TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+  #define S0 36     // Pin S0 para escala de frecuencia
+  #define S1 37     // Pin S1 para escala de frecuencia
+  #define S2 39     // Pin S2 para selección de filtro de color (Rojo/Azul)
+  #define S3 38     // Pin S3 para selección de filtro de color (Verde/Sin filtro)
+  #define sensorOut 40 // Pin OUT del sensor (debe soportar interrupciones o lectura de pulsos)
+
+// Variables para almacenar las frecuencias leídas de cada color
+int frecuenciaRojo = 0;
+int frecuenciaVerde = 0;
+int frecuenciaAzul = 0;
 
   //pins se definen despues
   //Car iniciar 4 motores, pines puestos en 0, se cambia en setup()
@@ -19,18 +27,20 @@ Movements movements;
 
   //Sensor Ultrasonico, primer pin es el trigger y el segundo es el echo
   UltraSonico sensorFrente(25, 24);//Frente
-  UltraSonico sensorIzquierda(27, 26);//Izquierda
-  UltraSonico sensorDerecha(23, 22);//Derecha
+  UltraSonico sensorIzquierda(23, 22);//Izquierda
+  UltraSonico sensorDerecha(27, 26);//Derecha
 
   //variables
 //int t;??? dos tiempos??
 double distanceFrente;
 double distanceIzquierda;
 double distanceDerecha;
-int detector= 4; //IR sensor
+int detector= 49; //IR sensor
 bool PelotaenPosesion = false;
-int STAGE = 0; ///////////////////////////////Etapa del circuito////////////////////////////
+int STAGE = 3; ///////////////////////////////Etapa del circuito////////////////////////////
 bool Union = false; ///////UNION DE ETAPAS////////
+Servo garra;
+
 
 
 //STAGE 1
@@ -51,12 +61,16 @@ String Lectura;
 int Traduccion_lectura; //Traducción de la lectura del color a un número para comparar con la dirección
 
 void setup() {
+
+  garra.attach(12); // Asignar el pin de la garra
+
+
   //Motores poner los pines de cada motor
   //primer pin es EN, segundo es In1 y tercero es In2
-  movements.motorFrontLeft(28, 31, 30); //Left Front Motor
-  movements.motorFrontRight(11, 35, 33); //Right Front Motor
-  movements.motorBackLeft(8, 9, 29); //Left Back Motor
-  movements.motorBackRight(10, 34, 32); //Right Back Motor
+  movements.motorBackLeft(9, 29, 31);
+  movements.motorFrontLeft(8, 28, 30);
+  movements.motorBackRight(10, 32, 34);
+  movements.motorFrontRight(11, 33, 35);
 
 //Especificar que son cada pin de todos los motores (Output, etc)
   movements.begin();
@@ -72,27 +86,17 @@ void setup() {
    //infrarrojo (IR)
   pinMode(detector, INPUT);
 
-  //color
-  //// if(tcs.begin()){ //checar si se conecto correctamente
-  //// }else{
-  ////   Serial.println(
-  ////     "No TCS34725 found ... check your conections");
-  ////     while(1);
-  //// }
-  pinMode(redpin, OUTPUT);//declarar los pines como output
-  pinMode(bluepin, OUTPUT);
-  pinMode(greenpin, OUTPUT);
-  for(int i=0; i<256; i++){ //ajustar intensidad LED's para ver lso cambios de brillo mejor (ni idea como funciona pero meh)
-    float x = i;
-    x /= 255;
-    x = pow(x, 2.5);
-    x*=255;
-    if(commonAnode){
-      gammatable[i]= 255 - x;
-    } else{
-      gammatable[i] = x;
-    }
-  }
+  // --- Setup TCS3200 ---
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut, INPUT);
+
+  // Configurar escala de frecuencia al 20% (Ideal para microcontroladores)
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
+
   movements.avanzar(100); // Avanza al inicio para no confundirse 
   delay(1000);
 }
@@ -137,51 +141,51 @@ void loop() {
     }
 
     if(bloqueofrontal == false && bloqueolateralizq == false && PelotaenPosesion == true){
-      movements.avanzar(25);
-      delay(500);
+      movements.avanzar(100);
+      delay(1300);
       Serial.println("Salida encontrada! :D");
       movements.freno();
       delay(200);
       movements.neutro();
       movements.izquierda(100);
-      delay(500);
+      delay(3350);
       movements.freno();
-      movements.avanzar(50);
-      delay(500);
+      movements.avanzar(100);
+      delay(4000);
       movements.neutro();
       STAGE = 2; //Cambio de etapa
       Union = true; 
     }
 
     else if(bloqueolateralder == false && bloqueofrontal == false && PelotaenPosesion == false){
-      movements.avanzar(25);
-      delay(250);
+      movements.avanzar(100);
+      delay(1300);
       Serial.println("Camino derecho detectado. Posible pelota!");
       movements.freno();
       delay(200);
       movements.neutro();
       movements.derecha(100);
-      delay(500);
+      delay(3350);
       movements.freno();
       delay(200);
       movements.neutro();
-      movements.avanzar(50);
-      delay(500);
+      movements.avanzar(100);
+      delay(1500);
       movements.neutro();
     }
 
-    else if(bloqueofrontal == true && bloqueolateralizq == true && bloqueolateralder == true && PelotaenPosesion == false){
+    else if(distanceFrente<=30 && bloqueolateralizq == true && bloqueolateralder == true && PelotaenPosesion == false){
       Serial.println("Pelota encontrada!");
-      movements.avanzar(50);
-      delay(500);
-      movements.neutro();
-      //GARRA ON                                             <<<<=========
-      PelotaenPosesion = true;
-      movements.retroceder(50);
+      movements.avanzar(100);
       delay(1000);
       movements.neutro();
-      movements.derecha(50);
-      delay(500);
+      garra.write(110); // Cierra la garra para agarrar la pelota
+      PelotaenPosesion = true;
+      movements.retroceder(100);
+      delay(2500);
+      movements.neutro();
+      movements.derecha(100);
+      delay(3350);
       movements.neutro();
     }
 
@@ -190,10 +194,8 @@ void loop() {
       movements.freno();
       delay(200);
       movements.neutro();
-      movements.derecha(75);
-      delay(500);
-      movements.avanzar(100);
-      delay(200);
+      movements.derecha(100);
+      delay(3350);
       movements.neutro();
     }
     else{
@@ -203,8 +205,8 @@ void loop() {
 
 
   if (STAGE == 2 && Union == true){ //           CAMBIO ETAPA 1-2 Circuito B
-    movements.avanzar(50);
-    delay(200);
+    movements.avanzar(100);
+    delay(2500);
     movements.neutro();
     Union = false;
     Rosa = "Norte";
@@ -244,29 +246,29 @@ void loop() {
     if(Rosa == "Norte" && bloqueofrontal == true && bloqueoIR == false){         //DAR LA VUELTA PARA DEVOLVERSE
       Serial.println("Momento de encontrar la puerta de salida!");
       Procesosalida = true;
-      movements.izquierda(30);
-      delay(1000);
+      movements.izquierda(100);
+      delay(3350);
       movements.neutro();           /// QUEDAR VOLTEANDO AL ESTE
       Rosa = "Este";
       
     }
     else if(Rosa == "Este" && bloqueofrontal == true){         //DAR LA VUELTA PARA DEVOLVERSE
-      movements.izquierda(30);
-      delay(2000);
+      movements.izquierda(100);
+      delay(3350);
       movements.neutro();
       Rosa = "Oeste";
       delay(200);
     }
     else if(Rosa == "Este" && bloqueofrontal == false && Procesosalida == false){
-      movements.izquierda(30);
-      delay(1200);
+      movements.izquierda(100);
+      delay(3350);
       movements.neutro();
       Rosa = "Norte";
       delay(200);
     }
     else if(Rosa == "Oeste" && bloqueofrontal == true){             //VOLTEAR AL FRENTE PARA CONTINUAR
-      movements.derecha(30);
-      delay(1000);
+      movements.derecha(100);
+      delay(3350);
       movements.neutro();
       Rosa = "Norte";
       delay(200);
@@ -274,32 +276,32 @@ void loop() {
     else if(Rosa == "Norte" && bloqueoIR == true && Procesosalida == false){           // DETECTAR BARRERA IR Y SEGUIR BUSCANDO
       movements.freno();
       delay(200);
-      movements.retroceder(50);
-      delay(500);
+      movements.retroceder(100);
+      delay(1200);
       movements.neutro();
       movements.derecha(100);
-      delay(500);
+      delay(3350);
       movements.neutro();
       Rosa = "Este";
-      movements.avanzar(50);
-      delay(500);//                                 <<<==== 16 CENTIMETROS
+      movements.avanzar(100);
+      delay(3000);//                                 <<<==== 16 CENTIMETROS
       movements.neutro();
     }
     else if(Procesosalida == true && Rosa == "Este" && bloqueolateralizq == false){
       delay(200);
-      movements.izquierda(50);
-      delay(500);
+      movements.izquierda(100);
+      delay(3350);
       movements.neutro();
       Rosa = "Norte";
       Serial.println("Salida encontrada! :D");
-      movements.avanzar(50);
-      delay(500);
+      movements.avanzar(100);
+      delay(4000);
       movements.neutro();
       STAGE = 3; //Cambio de etapa
       Union = true;
     }
     else if(Rosa == "Norte" && bloqueoIR == false && bloqueofrontal == false){ // Avanzar normal
-      movements.avanzar(50);
+      movements.avanzar(100);
     }
     
   }
@@ -307,8 +309,8 @@ void loop() {
 
 
   if(STAGE == 3 && Union == true){ //           CAMBIO ETAPA 2-3 Circuito B
-    movements.avanzar(50);
-    delay(200);
+    movements.avanzar(100);
+    delay(3000);
     movements.neutro();
     Union = false;
   }
@@ -333,50 +335,63 @@ void loop() {
     }
 
     //////////////                                 COLORES
-    float red, green, blue;
-    //// tcs.getRGB(&red, &green, &blue);
-    //// tcs.setInterrupt(false);
+    
+    digitalWrite(S2, LOW);
+    digitalWrite(S3, LOW);
+    frecuenciaRojo = pulseIn(sensorOut, LOW);
 
-    //// Serial.print("R:\t"); Serial.print(int(red));
-    //// Serial.print("\tG:\t"); Serial.print(int(green));
-    //// Serial.print("\tB:\t"); Serial.print(int(blue));
-    Serial.print("\n");
-    //*/
-    analogWrite(redpin, gammatable[(int)constrain(red, 0, 255)]);
-    analogWrite(greenpin, gammatable[(int)constrain(green, 0, 255)]);
-    analogWrite(bluepin, gammatable[(int)constrain(blue, 0, 255)]);
+    // --- Leer Filtro VERDE ---
+    digitalWrite(S2, HIGH);
+    digitalWrite(S3, HIGH);
+    frecuenciaVerde = pulseIn(sensorOut, LOW);
 
+    // --- Leer Filtro AZUL ---
+    digitalWrite(S2, LOW);
+    digitalWrite(S3, HIGH);
+    frecuenciaAzul = pulseIn(sensorOut, LOW);
 
-    // Calculo de porcentaje de cada color
-    float sumaTotal = red + green + blue + 1.0;
-    float rNorm = (red / sumaTotal) * 100.0;
-    float gNorm = (green / sumaTotal) * 100.0;
-    float bNorm = (blue / sumaTotal) * 100.0;
+    // Nota con TCS3200: A MENOR frecuencia (tiempo de pulso más corto), MAYOR intensidad del color.
+    // Para normalizar con el mismo principio, invertimos los valores o usamos proporciones inversas.
+    // O mejor aún, convertimos los pulsos a valores directos de intensidad estimada:
+    float rVal = 255.0 - constrain(frecuenciaRojo, 0, 255);
+    float gVal = 255.0 - constrain(frecuenciaVerde, 0, 255);
+    float bVal = 255.0 - constrain(frecuenciaAzul, 0, 255);
 
-    //Corroborar colores (supervisión)
-    Serial.print("R_norm: "); Serial.print(rNorm);
-    Serial.print(" | G_norm: "); Serial.print(gNorm);
-    Serial.print(" | B_norm: "); Serial.println(bNorm);
+    // Depuración por serial
+    Serial.print("R_freq: "); Serial.print(frecuenciaRojo);
+    Serial.print("\tG_freq: "); Serial.print(frecuenciaVerde);
+    Serial.print("\tB_freq: "); Serial.println(frecuenciaAzul);
 
-    //Interpretación de colores según porcentaje de cada color
-    if (rNorm > 45.0 && gNorm > 30.0 && bNorm < 25.0) {
-      Color = "Naranja";     // Predomina Rojo y Verde moderado
+    // 4. Clasificación por Rangos Normalizados
+    if (25 > frecuenciaRojo && frecuenciaRojo > 15 && 55 > frecuenciaVerde && frecuenciaVerde > 40 && 
+        60 > frecuenciaAzul && frecuenciaAzul > 40) {
+      Color = "Naranja";     
     } 
-    else if (gNorm > 35.0 && bNorm > 30.0 && rNorm < 30.0) {
-      Color = "Celeste";     // Predomina Verde y Azul alto
+    else if (65 > frecuenciaRojo && frecuenciaRojo > 50 && 35 > frecuenciaVerde && frecuenciaVerde > 25 && 
+        25 > frecuenciaAzul && frecuenciaAzul > 15) {
+      Color = "Celeste";     
     } 
-    else if (rNorm > 40.0 && bNorm > 30.0 && gNorm < 25.0) {
-      Color = "Rosa";        // Predomina Rojo y Azul con poco verde
+    else if (20 > frecuenciaRojo && frecuenciaRojo > 5 && 70 > frecuenciaVerde && frecuenciaVerde > 20 && 
+        30 > frecuenciaAzul && frecuenciaAzul > 15) {
+      Color = "Rosa";        
     } 
-    else if (rNorm > 35.0 && gNorm > 35.0 && bNorm < 20.0) {
-      Color = "Amarrillo";   // Rojo y Verde altos (mezcla para amarillo)
+    else if (20 > frecuenciaRojo && frecuenciaRojo > 10 && 25 > frecuenciaVerde && frecuenciaVerde > 10 && 
+        35 > frecuenciaAzul && frecuenciaAzul > 20) {
+      Color = "Amarrillo";   
+    }
+    else {
+      Color = "Desconocido"; 
     }
 
     ////// DELIMITAR RANGOS DE COLORES PARA DETECTAR CUAL ES EL COLOR CORRECTO Y LA ACCIÓN POR HACER
 
 
     //Action detection
-    if(Color == "Naranja"){
+    if(Color == "Desconocido"){
+      Lectura = "Valiendo Verga";
+      Traduccion_lectura = 69;
+    }
+    else if(Color == "Naranja"){
       Lectura = "Norte";
       Traduccion_lectura = 0;
     }
@@ -393,22 +408,30 @@ void loop() {
       Traduccion_lectura = 3;
     }
 
+    Serial.println("Color detectado: " + Color);
+    Serial.println("Dirección detectada: " + Lectura);
+
     // Actions
-    if(Traduccion_lectura < direccion){
+    
+    if(Traduccion_lectura == 69){
+      Serial.println("Repitiendo proceso");
+      delay(2000);
+    }
+    else if(Traduccion_lectura < direccion){
       movements.izquierda(100);
-      delay(500);
+      delay(3350);
       movements.neutro();
       direccion--;
     }
     else if(Traduccion_lectura > direccion){
       movements.derecha(100);
-      delay(500);
+      delay(3350);
       movements.neutro();
       direccion++;
     }
     else if(Traduccion_lectura == direccion){
       movements.avanzar(100);
-      delay(500);//                                <<<==== Ajustar a una casilla
+      delay(4000);//                                <<<==== Ajustar a una casilla
       movements.neutro();
     }
 
