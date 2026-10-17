@@ -7,21 +7,10 @@
 #include "ultrasonico.h"
 #include "correctioncentrado.h"
 #include "backtracking.h"
+#include "sensorColor.h"
 
 // -------------------- Color sensor --------------------
-#define S0 36
-#define S1 37
-#define S2 39
-#define S3 38
-#define sensorOut 40
-#define commonAnode true
-
-int redPW = 0;
-int greenPW = 0;
-int bluePW = 0;
-int redPin = 5;
-int greenPin = 3;
-int bluePin = 6;
+sensorColor color(36, 37, 39, 38, 40);
 
 // -------------------- Robot --------------------
 Movements robot;
@@ -41,10 +30,6 @@ bool pruebaMotores = false;
 bool pruebaUltrasonico = false;
 bool pruebaColor = true;
 bool pruebaConjunta = false;
-
-int getRedPW();
-int getGreenPW();
-int getBluePW();
 
 BackTracking laberintoSolver(sensorIzquierda, sensorDerecha, sensorFrente, robot);
 void setup() {
@@ -68,22 +53,9 @@ void setup() {
   sensorIzquierda.begin();
   sensorDerecha.begin();
   
-  // Set S0 - S3 as outputs
-	pinMode(S0, OUTPUT);
-	pinMode(S1, OUTPUT);
-	pinMode(S2, OUTPUT);
-	pinMode(S3, OUTPUT);
 
-	// Set Pulse Width scaling to 20%
-	digitalWrite(S0,HIGH);
-	digitalWrite(S1,LOW);
 
-	// Set Sensor output as input
-	pinMode(sensorOut, INPUT);
 
-  pinMode(redPin, OUTPUT);//declarar los pines como output
-  pinMode(bluePin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
 
 /*
    //infrarrojo (IR)
@@ -115,13 +87,13 @@ void setup() {
 
 
 void loop() {
-/*
+
   laberintoSolver.solver(5, 1, 0); //comienza a resolver el laberinto desde la casilla (5,0) mirando hacia el norte (direccion 0)
   robot.retroceder(100);
   delay(2000);
   robot.neutro();
   delay(3000);
-*/
+
   
   if(pruebaMotores) {
     Serial.println("PRUEBA MOTORES");
@@ -144,14 +116,9 @@ void loop() {
   robot.neutro();
   delay(3000);
     */
-  }
+  }/*
    if(pruebaColor){
-   redPW = getRedPW();
-  delay(200);
-  greenPW = getGreenPW();
-  delay(200);
-  bluePW = getBluePW();
-  delay(200);
+   
   Serial.print("Red PW = ");
 	Serial.print(redPW);
 	Serial.print(" - Green PW = ");
@@ -162,6 +129,7 @@ void loop() {
   analogWrite(greenPin, greenPW);
   analogWrite(bluePin, bluePW);
    }
+   */
   if (pruebaUltrasonico) {
     distanceFrente = sensorFrente.getDistance();
     distanceIzquierda = sensorIzquierda.getDistance();
@@ -205,42 +173,4 @@ void loop() {
     Serial.println("Detectado obstaculo");//cambiar a un boolean
   
   }
-}
-// Function to read Red Pulse Widths
-int getRedPW() {
-	// Set sensor to read Red only
-	digitalWrite(S2,LOW);
-	digitalWrite(S3,LOW);
-	// Define integer to represent Pulse Width
-	int PW;
-	// Read the output Pulse Width
-	PW = pulseIn(sensorOut, LOW);
-	// Return the value
-	return PW;
-}
-
-// Function to read Green Pulse Widths
-int getGreenPW() {
-	// Set sensor to read Green only
-	digitalWrite(S2,HIGH);
-	digitalWrite(S3,HIGH);
-	// Define integer to represent Pulse Width
-	int PW;
-	// Read the output Pulse Width
-	PW = pulseIn(sensorOut, LOW);
-	// Return the value
-	return PW;
-}
-
-// Function to read Blue Pulse Widths
-int getBluePW() {
-	// Set sensor to read Blue only
-	digitalWrite(S2,LOW);
-	digitalWrite(S3,HIGH);
-	// Define integer to represent Pulse Width
-	int PW;
-	// Read the output Pulse Width
-	PW = pulseIn(sensorOut, LOW);
-	// Return the value
-	return PW;
 }
