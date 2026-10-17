@@ -33,11 +33,13 @@ float distanceFrente;
 float distanceIzquierda;
 float distanceDerecha;
 
+//IR
+const int detector=47;
 CorrectionCentrado correction;
 // Cambiar booleans para porbar cosas
 bool pruebaMotores = false;
 bool pruebaUltrasonico = false;
-bool pruebaColor = false;
+bool pruebaColor = true;
 bool pruebaConjunta = false;
 
 int getRedPW();
@@ -46,6 +48,8 @@ int getBluePW();
 
 BackTracking laberintoSolver(sensorIzquierda, sensorDerecha, sensorFrente, robot);
 void setup() {
+  //IR
+  pinMode(detector, INPUT);
   //Motores poner los pines de cada motor
   //primer pin es ENA, segundo es In1 y tercero es In2
   robot.motorBackLeft(9, 29, 31);
@@ -111,13 +115,13 @@ void setup() {
 
 
 void loop() {
-
+/*
   laberintoSolver.solver(5, 1, 0); //comienza a resolver el laberinto desde la casilla (5,0) mirando hacia el norte (direccion 0)
-
   robot.retroceder(100);
   delay(2000);
   robot.neutro();
   delay(3000);
+*/
   
   if(pruebaMotores) {
     Serial.println("PRUEBA MOTORES");
@@ -193,14 +197,14 @@ void loop() {
   */
   delay(100);
   }
-  /*
+  
   //Infrarrojo
   int valueIR = 0;
   valueIR = digitalRead(detector);
   if(valueIR == HIGH){ //checa si hay obstaaculo
     Serial.println("Detectado obstaculo");//cambiar a un boolean
+  
   }
-  */
 }
 // Function to read Red Pulse Widths
 int getRedPW() {
